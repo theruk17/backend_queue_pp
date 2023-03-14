@@ -200,7 +200,7 @@ app.post('/submit', jsonParser, function (req, res, next) {
                 res.json({status: 'error', message: err})
                 return
             }
-            res.json('success')
+            res.json('done')
         })
 })
 
