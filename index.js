@@ -9,6 +9,7 @@ const saltRounds = 10
 const jwt = require('jsonwebtoken')
 const secret = 'queuepakplee'
 require('dotenv').config()
+const axios = require('axios')
 
 const connection = mysql.createConnection(process.env.DATABASE_URL)
 
