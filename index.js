@@ -198,8 +198,85 @@ app.post('/checktime', jsonParser, function (req, res, next) {
 app.post('/submit', jsonParser, function (req, res, next) {
     let uid = req.body.uid
     let date = req.body.date
+    let dateTH = req.body.dateth
     let time = req.body.time
     let service = req.body.service
+    let data = JSON.stringify({
+        "to": "Ubcc15588c74970d3a1b492f43a8390e5",
+        "messages": [
+          {
+            "type": "flex",
+            "altText": "จองคิวสำเร็จ",
+            "contents": {
+              "type": "bubble",
+              "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "คุณได้จองคิว",
+                    "weight": "bold",
+                    "color": "#1DB446",
+                    "size": "sm",
+                    "align": "center"
+                  },
+                  {
+                    "type": "text",
+                    "text": dateTH,
+                    "weight": "bold",
+                    "size": "xxl",
+                    "margin": "md",
+                    "align": "center"
+                  },
+                  {
+                    "type": "text",
+                    "text": time,
+                    "size": "xl",
+                    "wrap": true,
+                    "weight": "bold",
+                    "align": "center"
+                  },
+                  {
+                    "type": "separator",
+                    "margin": "xxl"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "xxl",
+                    "spacing": "sm",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "บริการ "+service,
+                        "size": "lg",
+                        "weight": "bold",
+                        "align": "center"
+                      },
+                      {
+                        "type": "separator",
+                        "margin": "xxl"
+                      },
+                      {
+                        "type": "text",
+                        "text": "โรงพยาบาลปากพลี นครนายก",
+                        "align": "center"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "styles": {
+                "footer": {
+                  "separator": true
+                }
+              }
+            }
+          }
+        ]
+      });
+
     connection.query(
         "INSERT INTO booking_list (uid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?)",
         [uid, date, time, service],
@@ -208,6 +285,20 @@ app.post('/submit', jsonParser, function (req, res, next) {
                 res.json({status: 'error', message: err})
                 return
             }
+            
+            axios.post('https://api.line.me/v2/bot/message/push', data, {
+                headers: {
+                    'Authorization': 'Bearer D9Sxb1beOiSFItnI3Wq0Xxz0LjoQ9LWuwEFqvsyJW0yI5ixX7+oP8o33quSt9IJzF2+meBOE5EU+8LysrTd94hyTenOpXLMyV1B4OqIWqaz+63qJ1IT85U0rFrQMKHgOw2HlRkgvcvxdrqylwOMflgdB04t89/1O/w1cDnyilFU=',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(function (response) {
+                console.log(JSON.stringify(response.data));
+                
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
             res.json('done')
         })
 })
