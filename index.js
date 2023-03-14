@@ -12,7 +12,12 @@ require('dotenv').config()
 
 const connection = mysql.createConnection(process.env.DATABASE_URL)
 
-app.use(cors())
+const corsOptions = {
+    origin: 'https://line-liff-queue.vercel.app',
+    credentials: true,
+  };
+
+app.use(cors(corsOptions))
 
 app.post('/data', jsonParser, function (req, res, next) {
     connection.query(
