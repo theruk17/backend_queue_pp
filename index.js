@@ -12,12 +12,8 @@ require('dotenv').config()
 
 const connection = mysql.createConnection(process.env.DATABASE_URL)
 
-const corsOptions = {
-    origin: '*',
-    credentials: true,
-  };
 
-app.use(cors(corsOptions))
+app.use(cors())
 
 app.post('/data', jsonParser, function (req, res, next) {
     connection.query(
