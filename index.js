@@ -188,7 +188,7 @@ app.post('/checktime', jsonParser, function (req, res, next) {
 })
 
 app.post('/submit', jsonParser, function (req, res, next) {
-    let uid = req.body.userid
+    let uid = req.body.uid
     let date = req.body.date
     let time = req.body.time
     let service = req.body.service
