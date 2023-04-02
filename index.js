@@ -194,7 +194,7 @@ app.get('/checkdate', jsonParser, function (req, res, next) {
 app.post('/checkbooking', jsonParser, function (req, res, next) {
     const uid = req.body.uid
     connection.query(
-        "SELECT count(id) as count FROM booking_list WHERE booking_status = 'Y' AND uid = ?",
+        "SELECT * FROM booking_list WHERE booking_status = 'Y' AND uid = ?",
         [uid],
         function(err, results, fields) {
             if (err) {
