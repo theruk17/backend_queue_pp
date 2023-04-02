@@ -228,7 +228,7 @@ app.put('/cancel_queue', jsonParser, function (req, res, next) {
                 res.json({status: 'error', message: err})
                 return
             }
-            res.json("ยกเลิกคิวสำเร็จ")
+            res.json("done")
         })
 })
 
