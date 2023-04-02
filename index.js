@@ -191,6 +191,20 @@ app.get('/checkdate', jsonParser, function (req, res, next) {
         })
 })
 
+app.get('/checkbooking', jsonParser, function (req, res, next) {
+    const uid = req.body.uid
+    connection.query(
+        "SELECT count(id) as count FROM booking_list WHERE booking_status = 'Y' AND uid = ?",
+        [uid],
+        function(err, results, fields) {
+            if (err) {
+                res.json({status: 'error', message: err})
+                return
+            }
+            res.json(results)
+        })
+})
+
 app.post('/checktime', jsonParser, function (req, res, next) {
     connection.query(
         "SELECT booking_time FROM booking_list WHERE booking_status='Y' AND booking_date=?",
@@ -204,6 +218,20 @@ app.post('/checktime', jsonParser, function (req, res, next) {
         })
 })
 
+app.put('/cancel_queue', jsonParser, function (req, res, next) {
+    const uid = req.body.uid
+    connection.query(
+        "UPDATE booking_list SET booking_status = 'N' WHERE uid = ?",
+        [uid],
+        function(err, results, fields) {
+            if (err) {
+                res.json({status: 'error', message: err})
+                return
+            }
+            res.json("ยกเลิกคิวสำเร็จ")
+        })
+})
+
 app.post('/submit', jsonParser, function (req, res, next) {
     let uid = req.body.uid
     let date = req.body.date
@@ -211,7 +239,7 @@ app.post('/submit', jsonParser, function (req, res, next) {
     let time = req.body.time
     let service = req.body.service
     let data = JSON.stringify({
-        "to": "Ubcc15588c74970d3a1b492f43a8390e5",
+        "to": uid,
         "messages": [
           {
             "type": "flex",
