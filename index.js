@@ -16,6 +16,21 @@ const connection = mysql.createConnection(process.env.DATABASE_URL)
 
 app.use(cors())
 
+app.get('/admin_data', jsonParser, function (req, res, next) {
+    connection.query(
+        'SELECT b.id, u.pic_url, u.cid, CONCAT(u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status FROM booking_list b LEFT JOIN users u ON u.uid=b.uid',
+        
+        function(err, results, fields) {
+            if (err) {
+                res.json({status: 'error', message: err})
+                return
+            } else {
+                res.json(results)
+            }
+        }
+    )
+})
+
 app.post('/data', jsonParser, function (req, res, next) {
     connection.query(
         'SELECT * FROM users WHERE uid = ?',
@@ -89,14 +104,14 @@ app.put('/register_user', jsonParser, function (req, res, next) {
 })
 
 app.post('/register', jsonParser, function (req, res, next) {
-    bcrypt.hash(req.body.cid, saltRounds, function(err, hash) {
-        
+    bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        var username = req.body.username
         var fname = req.body.fname
         var lname = req.body.lname
     
         connection.execute(
-            'INSERT INTO users (cid, fname, lname) VALUES (?, ?, ?)',
-            [hash, fname, lname],
+            'INSERT INTO staff (username, password, fname, lname) VALUES (?, ?, ?, ?)',
+            [username, hash, fname, lname],
             function(err, results, fields) {
                 if (err) {
                     res.json({status: 'error', message: err})
@@ -114,8 +129,8 @@ app.post('/register', jsonParser, function (req, res, next) {
 app.post('/login', jsonParser, function (req, res, next) {
     
     connection.execute(
-        'SELECT * FROM users WHERE fname=?',
-        [req.body.fname],
+        'SELECT * FROM staff WHERE username=?',
+        [req.body.username],
         function(err, users, fields) {
             if (err) {
                 res.json({status: 'error', message: err})
@@ -125,9 +140,9 @@ app.post('/login', jsonParser, function (req, res, next) {
                 res.json({status: 'error', message: 'no user found'})
                 return
             }
-            bcrypt.compare(req.body.cid, users[0].cid, function(err, isLogin) {
+            bcrypt.compare(req.body.password, users[0].password, function(err, isLogin) {
                 if (isLogin) {
-                    var token = jwt.sign({ fname: users[0].fname}, secret, { expiresIn: '1h'})
+                    var token = jwt.sign({ username: users[0].username}, secret, { expiresIn: '1h'})
                     res.json({status: 'ok', message: 'success', token})
                     
                 } else {
@@ -142,9 +157,9 @@ app.post('/login', jsonParser, function (req, res, next) {
 
 app.post('/auth', jsonParser, function (req, res, next) {
     try {
-        const token = req.headers.authorization.split(' ')[1]
+        const token = req.body.headers.Authorization.split(' ')[1]
         const decoded = jwt.verify(token, secret)
-        res.json({decoded})
+        res.json({status: 'ok', decoded})
     } catch(err) {
         res.json({status: 'error', message: err})
     }
@@ -259,7 +274,8 @@ app.post('/submit', jsonParser, function (req, res, next) {
                       }
                     ]
                   }
-                ]
+                ],
+                "backgroundColor": "#A17DF5",
               },
               "styles": {
                 "footer": {
