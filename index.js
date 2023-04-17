@@ -239,7 +239,7 @@ app.post('/submit', jsonParser, function (req, res, next) {
     let time = req.body.time
     let service = req.body.service
     let data = JSON.stringify({
-        "to": "Ubcc15588c74970d3a1b492f43a8390e5",
+        "to": uid,
         "messages": [
           {
             "type": "flex",
