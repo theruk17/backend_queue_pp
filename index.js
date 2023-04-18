@@ -181,7 +181,7 @@ app.get('/holiday', jsonParser, function (req, res, next) {
 
 app.get('/checkdate', jsonParser, function (req, res, next) {
     connection.query(
-        "SELECT booking_date FROM booking_list WHERE booking_status = 'Y' GROUP BY booking_date HAVING COUNT(booking_date) > 1",
+        "SELECT booking_date FROM booking_list WHERE booking_status = 'Y' GROUP BY booking_date HAVING COUNT(booking_date) > 3",
         function(err, results, fields) {
             if (err) {
                 res.json({status: 'error', message: err})
