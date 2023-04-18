@@ -262,7 +262,7 @@ app.post('/submit', jsonParser, function (req, res, next) {
                     "type": "text",
                     "text": dateTH,
                     "weight": "bold",
-                    "size": "xl",
+                    "size": "lg",
                     "margin": "md",
                     "align": "center"
                   },
