@@ -264,7 +264,7 @@ app.post('/submit', jsonParser, function (req, res, next) {
                     "type": "text",
                     "text": "เลขบัตรประชาชน "+cid,
                     "weight": "bold",
-                    "size": "lg",
+                    "size": "sm",
                     "margin": "md",
                     "align": "center"
                   },
