@@ -46,7 +46,7 @@ app.post('/data', jsonParser, function (req, res, next) {
     )
 })
 
-app.put('/register_line', jsonParser, function (req, res, next) {
+app.post('/register_line', jsonParser, function (req, res, next) {
         const c_id = '1660743780'
         const actoken = req.body.actoken
         axios.get('https://api.line.me/oauth2/v2.1/verify?access_token=',actoken)
