@@ -233,7 +233,6 @@ app.put('/cancel_queue', jsonParser, function (req, res, next) {
 })
 
 app.post('/submit', jsonParser, function (req, res, next) {
-    let cid = req.body.cid
     let name = req.body.name
     let uid = req.body.uid
     let date = req.body.date
@@ -262,14 +261,6 @@ app.post('/submit', jsonParser, function (req, res, next) {
                   },
                   {
                     "type": "text",
-                    "text": "เลขบัตรประชาชน "+cid,
-                    "weight": "bold",
-                    "size": "sm",
-                    "margin": "md",
-                    "align": "center"
-                  },
-                  {
-                    "type": "text",
                     "text": "ชื่อ "+name,
                     "weight": "bold",
                     "size": "lg",
@@ -290,7 +281,7 @@ app.post('/submit', jsonParser, function (req, res, next) {
                   },
                   {
                     "type": "text",
-                    "text": time,
+                    "text": "เวลา "+time,
                     "size": "xl",
                     "wrap": true,
                     "weight": "bold",
