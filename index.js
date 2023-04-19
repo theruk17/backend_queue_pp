@@ -51,7 +51,7 @@ app.post('/register_line', jsonParser, function (req, res, next) {
         const actoken = req.body.actoken
         const token = actoken.replace('"','').replace('"','')
         console.log(token)
-        axios.get('https://api.line.me/oauth2/v2.1/verify?access_token=',token)
+        axios.get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
         .then(res => {
             
 
