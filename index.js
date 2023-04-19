@@ -49,14 +49,16 @@ app.post('/data', jsonParser, function (req, res, next) {
 app.post('/register_line', jsonParser, function (req, res, next) {
         const c_id = '1660743780'
         const actoken = req.body.actoken
-        axios.get('https://api.line.me/oauth2/v2.1/verify?access_token=',actoken)
+        const token = actoken.replece('"','')
+        console.log(token)
+        axios.get('https://api.line.me/oauth2/v2.1/verify?access_token=',token)
         .then(res => {
             
 
             if(res.data.map(item => item.client_id) === c_id && res.data.map(item => item.expires_in) > 0) {
                 axios.get(
                     `https://api.line.me/v2/profile`, {
-                    headers: { Authorization: `Bearer ${actoken}` }
+                    headers: { Authorization: `Bearer ${token}` }
                  })
                  .then(res => {
                     console.log(res.data)
