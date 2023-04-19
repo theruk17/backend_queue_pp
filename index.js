@@ -71,7 +71,19 @@ app.post('/register_line', jsonParser, function (req, resp, next) {
                                 resp.send({ status: 'error', message: err })
                                 return
                             } else {
-                                resp.send('done');
+                                connection.query(
+                                    'SELECT cid FROM users WHERE uid=?',
+                                    [uid],
+                                    function(err, results, fields) {
+                                        if (err) {
+                                            resp.json({status: 'error', message: err})
+                                            return
+                                        } else {
+                                            resp.json(results)
+                                        }
+                                        
+                                    })
+                                
                             }
                             
                         
