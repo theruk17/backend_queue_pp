@@ -65,7 +65,7 @@ app.put('/register_line', jsonParser, function (req, res, next) {
         })
         
 
-        connection.execute(
+        /* connection.execute(
             'INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?',
             [uid, pic, uid, pic],
             function(err, results, fields) {
@@ -78,7 +78,7 @@ app.put('/register_line', jsonParser, function (req, res, next) {
                 
             
             }
-        )
+        ) */
    
     
   
