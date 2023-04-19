@@ -46,11 +46,11 @@ app.post('/data', jsonParser, function (req, res, next) {
     )
 })
 
-app.post('/register_line', jsonParser, function (req, res, next) {
+app.post('/register_line', jsonParser, function (req, resp, next) {
         const c_id = '1660743780'
         const actoken = req.body.actoken
         const token = actoken.replace('"','').replace('"','')
-        console.log(token)
+        
         axios.get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
         .then(res => {
             
@@ -68,10 +68,10 @@ app.post('/register_line', jsonParser, function (req, res, next) {
                         [uid, pic, uid, pic],
                         function(err, results, fields) {
                             if (err) {
-                                res.send({ status: 'error', message: err })
+                                resp.send({ status: 'error', message: err })
                                 return
                             } else {
-                                res.send('done');
+                                resp.send('done');
                             }
                             
                         
