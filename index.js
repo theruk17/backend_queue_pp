@@ -227,8 +227,70 @@ app.put('/cancel_queue', jsonParser, function (req, res, next) {
             if (err) {
                 res.json({status: 'error', message: err})
                 return
+            } else {
+                res.json("done")
+                let data = JSON.stringify({
+                    "to": uid,
+                    "messages": [
+                      {
+                        "type": "flex",
+                        "altText": "คุณได้ยกเลิกคิว",
+                        "contents": {
+                          "type": "bubble",
+                          "body": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                              {
+                                "type": "text",
+                                "text": "คุณได้ยกเลิกคิว",
+                                "weight": "bold",
+                                "color": "#1DB446",
+                                "size": "md",
+                                "align": "center"
+                              },
+                              {
+                                "type": "separator",
+                                "margin": "xxl"
+                              },
+                              
+                              {
+                                "type": "box",
+                                "layout": "vertical",
+                                "margin": "xxl",
+                                "spacing": "sm",
+                                "contents": [
+                                  
+                                  {
+                                    "type": "text",
+                                    "text": "โรงพยาบาลปากพลี นครนายก",
+                                    "align": "center"
+                                  }
+                                ]
+                              }
+                            ],
+                            
+                          },
+                          "styles": {
+                            "footer": {
+                              "separator": true
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  });
+                  axios.post('https://api.line.me/v2/bot/message/push', data, {
+                headers: {
+                    'Authorization': 'Bearer '+process.env.KEY_API,
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(function (response) {
+                console.log(JSON.stringify(response.data));
+                
+            })
             }
-            res.json("done")
         })
 })
 
