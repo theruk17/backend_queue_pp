@@ -61,26 +61,28 @@ app.post('/register_line', jsonParser, function (req, res, next) {
                     headers: { Authorization: `Bearer ${token}` }
                  })
                  .then(res => {
-                    console.log(res.data)
+                    const uid = res.data.userId
+                    const pic = res.data.pictureUrl
+                    connection.execute(
+                        'INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?',
+                        [uid, pic, uid, pic],
+                        function(err, results, fields) {
+                            if (err) {
+                                res.send({ status: 'error', message: err })
+                                return
+                            } else {
+                                res.send('done');
+                            }
+                            
+                        
+                        }
+                    )
                  })
             }
         })
         
 
-        /* connection.execute(
-            'INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?',
-            [uid, pic, uid, pic],
-            function(err, results, fields) {
-                if (err) {
-                    res.send({ status: 'error', message: err })
-                    return
-                } else {
-                    res.send('done');
-                }
-                
-            
-            }
-        ) */
+        
    
     
   
