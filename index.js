@@ -47,10 +47,24 @@ app.post('/data', jsonParser, function (req, res, next) {
 })
 
 app.put('/register_line', jsonParser, function (req, res, next) {
-    
-        const uid = req.body.uid
-        const pic = req.body.pic
-    
+        const c_id = '1660743780'
+        const actoken = req.body.actoken
+        axios.get('https://api.line.me/oauth2/v2.1/verify?access_token=',actoken)
+        .then(res => {
+            
+
+            if(res.data.map(item => item.client_id) === c_id && res.data.map(item => item.expires_in) > 0) {
+                axios.get(
+                    `https://api.line.me/v2/profile`, {
+                    headers: { Authorization: `Bearer ${actoken}` }
+                 })
+                 .then(res => {
+                    console.log(res.data)
+                 })
+            }
+        })
+        
+
         connection.execute(
             'INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?',
             [uid, pic, uid, pic],
@@ -89,9 +103,30 @@ app.put('/register_user', jsonParser, function (req, res, next) {
     const cid = req.body.idcard
     const fname = req.body.fname
     const lname = req.body.lname
+    
     connection.execute(
         'UPDATE users SET cid=?, fname=?, lname=? WHERE uid=?',
         [cid, fname, lname, req.body.uid],
+        function(err, results, fields) {
+            if (err) {
+                res.json({status: 'error', message: err})
+                return
+            } else {
+                res.json('done')
+            }
+            
+        })
+})
+
+app.post('/register_user_other', jsonParser, function (req, res, next) {
+    const cid = req.body.idcard
+    const fname = req.body.fname
+    const lname = req.body.lname
+    const other = req.body.for
+    const type = req.body.type
+    connection.execute(
+        'INSERT INTO users (for, cid, fname, lname, primary) VALUES (?, ?, ?, ?, ?)',
+        [other, cid, fname, lname, type],
         function(err, results, fields) {
             if (err) {
                 res.json({status: 'error', message: err})
@@ -194,7 +229,10 @@ app.get('/checkdate', jsonParser, function (req, res, next) {
 app.post('/checkbooking', jsonParser, function (req, res, next) {
     const uid = req.body.uid
     connection.query(
-        "SELECT * FROM booking_list WHERE booking_status = 'Y' AND uid = ?",
+        `SELECT CONCAT(u.fname,' ',u.lname) as fullname, u.cid, b.booking_service, b.booking_date,b.booking_time 
+        FROM booking_list b
+        LEFT JOIN users u ON u.uid = b.uid
+        WHERE b.booking_status = 'Y' AND b.uid = ?`,
         [uid],
         function(err, results, fields) {
             if (err) {
