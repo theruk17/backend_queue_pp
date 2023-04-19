@@ -55,7 +55,7 @@ app.post('/register_line', jsonParser, function (req, res, next) {
         .then(res => {
             
 
-            if(res.data.map(item => item.client_id) === c_id && res.data.map(item => item.expires_in) > 0) {
+            if(res.data.map(item => (item.client_id)) === c_id && res.data.map(item => item.expires_in) > 0) {
                 axios.get(
                     `https://api.line.me/v2/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
