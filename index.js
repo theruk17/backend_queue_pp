@@ -62,7 +62,7 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             let pic = res.data.pictureUrl;
-            if(pic === null || pic === '') {
+            if(pic == null || pic == '') {
                 pic = '#'
             }
             connection.execute(
