@@ -504,7 +504,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
             connection.query(
               "INSERT INTO booking_list (uid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?)",
               [uid, date, time, service],
-              function (err, results, fields) {
+              function (err, results) {
                 if (err) {
                   resp.json({ status: "error", message: err });
                   return;
