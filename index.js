@@ -393,7 +393,7 @@ app.put('/cancel_queue', jsonParser, function (req, res, next) {
 })
 
 app.post("/submit", jsonParser, function (req, resp, next) {
-  const name = req.body.name;
+  let fullname = ''
   const date = req.body.date;
   const dateTH = req.body.dateth;
   const time = req.body.time;
@@ -413,6 +413,12 @@ app.post("/submit", jsonParser, function (req, resp, next) {
           })
           .then((res) => {
             const uid = res.data.userId;
+            connection.query(
+              "SELECT CONCAT(fname,' ',lname) as fullname FROM users WHERE uid = ?",
+              [uid],
+              function (err, results) {
+                fullname = results.fullname
+              })
             let data = JSON.stringify({
               "to": uid,
               "messages": [
@@ -435,7 +441,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                         },
                         {
                           "type": "text",
-                          "text": "ชื่อ " + name,
+                          "text": "ชื่อ " + fullname,
                           "weight": "bold",
                           "size": "lg",
                           "margin": "md",
