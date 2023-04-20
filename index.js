@@ -529,7 +529,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                   .catch(function (error) {
                     resp.json(error);
                   });
-                resp.json("done");
+                resp.json(data);
               }
             );
           });
