@@ -392,127 +392,144 @@ app.put('/cancel_queue', jsonParser, function (req, res, next) {
         })
 })
 
-app.post('/submit', jsonParser, function (req, res, next) {
-    let name = req.body.name
-    let uid = req.body.uid
-    let date = req.body.date
-    let dateTH = req.body.dateth
-    let time = req.body.time
-    let service = req.body.service
-    let data = JSON.stringify({
-        "to": uid,
-        "messages": [
-          {
-            "type": "flex",
-            "altText": "จองคิวสำเร็จ",
-            "contents": {
-              "type": "bubble",
-              "body": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                  {
-                    "type": "text",
-                    "text": "คุณได้จองคิว",
-                    "weight": "bold",
-                    "color": "#1DB446",
-                    "size": "md",
-                    "align": "center"
-                  },
-                  {
-                    "type": "text",
-                    "text": "ชื่อ "+name,
-                    "weight": "bold",
-                    "size": "lg",
-                    "margin": "md",
-                    "align": "center"
-                  },
-                  {
-                    "type": "separator",
-                    "margin": "xxl"
-                  },
-                  {
-                    "type": "text",
-                    "text": dateTH,
-                    "weight": "bold",
-                    "size": "lg",
-                    "margin": "md",
-                    "align": "center"
-                  },
-                  {
-                    "type": "text",
-                    "text": "เวลา "+time,
-                    "size": "xl",
-                    "wrap": true,
-                    "weight": "bold",
-                    "align": "center"
-                  },
-                  {
-                    "type": "separator",
-                    "margin": "xxl"
-                  },
-                  {
-                    "type": "box",
-                    "layout": "vertical",
-                    "margin": "xxl",
-                    "spacing": "sm",
-                    "contents": [
-                      {
-                        "type": "text",
-                        "text": "บริการ "+service,
-                        "size": "lg",
-                        "weight": "bold",
-                        "align": "center"
-                      },
-                      {
-                        "type": "separator",
-                        "margin": "xxl"
-                      },
-                      {
-                        "type": "text",
-                        "text": "โรงพยาบาลปากพลี นครนายก",
-                        "align": "center"
-                      }
-                    ]
-                  }
-                ],
-                
-              },
-              "styles": {
-                "footer": {
-                  "separator": true
-                }
-              }
-            }
-          }
-        ]
-      });
+app.post("/submit", jsonParser, function (req, resp, next) {
+  const name = req.body.name;
+  const date = req.body.date;
+  const dateTH = req.body.dateth;
+  const time = req.body.time;
+  const service = req.body.service;
 
-    connection.query(
-        "INSERT INTO booking_list (uid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?)",
-        [uid, date, time, service],
-        function(err, results, fields) {
-            if (err) {
-                res.json({status: 'error', message: err})
-                return
-            }
-            
-            axios.post('https://api.line.me/v2/bot/message/push', data, {
-                headers: {
-                    'Authorization': 'Bearer '+process.env.KEY_API,
-                    'Content-Type': 'application/json'
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            let data = JSON.stringify({
+              to: uid,
+              messages: [
+                {
+                  type: "flex",
+                  altText: "จองคิวสำเร็จ",
+                  contents: {
+                    type: "bubble",
+                    body: {
+                      type: "box",
+                      layout: "vertical",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "คุณได้จองคิว",
+                          weight: "bold",
+                          color: "#1DB446",
+                          size: "md",
+                          align: "center",
+                        },
+                        {
+                          type: "text",
+                          text: "ชื่อ " + name,
+                          weight: "bold",
+                          size: "lg",
+                          margin: "md",
+                          align: "center",
+                        },
+                        {
+                          type: "separator",
+                          margin: "xxl",
+                        },
+                        {
+                          type: "text",
+                          text: dateTH,
+                          weight: "bold",
+                          size: "lg",
+                          margin: "md",
+                          align: "center",
+                        },
+                        {
+                          type: "text",
+                          text: "เวลา " + time,
+                          size: "xl",
+                          wrap: true,
+                          weight: "bold",
+                          align: "center",
+                        },
+                        {
+                          type: "separator",
+                          margin: "xxl",
+                        },
+                        {
+                          type: "box",
+                          layout: "vertical",
+                          margin: "xxl",
+                          spacing: "sm",
+                          contents: [
+                            {
+                              type: "text",
+                              text: "บริการ " + service,
+                              size: "lg",
+                              weight: "bold",
+                              align: "center",
+                            },
+                            {
+                              type: "separator",
+                              margin: "xxl",
+                            },
+                            {
+                              type: "text",
+                              text: "โรงพยาบาลปากพลี นครนายก",
+                              align: "center",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    styles: {
+                      footer: {
+                        separator: true,
+                      },
+                    },
+                  },
                 },
-            })
-            .then(function (response) {
-                console.log(JSON.stringify(response.data));
-                
-            })
-            .catch(function (error) {
-                console.log(error);
+              ],
             });
-            res.json('done')
-        })
-})
+
+            connection.query(
+              "INSERT INTO booking_list (uid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?)",
+              [uid, date, time, service],
+              function (err, results, fields) {
+                if (err) {
+                  resp.json({ status: "error", message: err });
+                  return;
+                }
+
+                axios
+                  .post("https://api.line.me/v2/bot/message/push", data, {
+                    headers: {
+                      Authorization: "Bearer " + process.env.KEY_API,
+                      "Content-Type": "application/json",
+                    },
+                  })
+                  .then(function (response) {
+                    console.log(JSON.stringify(response.data));
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  });
+                resp.json("done");
+              }
+            );
+          });
+      }
+    });
+});
 
 app.listen(3333, function () {
   console.log('CORS-enabled web server listening on port 3333')
