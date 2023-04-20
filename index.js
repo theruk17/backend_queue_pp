@@ -414,86 +414,86 @@ app.post("/submit", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             let data = JSON.stringify({
-              to: uid,
-              messages: [
+              "to": uid,
+              "messages": [
                 {
-                  type: "flex",
-                  altText: "จองคิวสำเร็จ",
-                  contents: {
-                    type: "bubble",
-                    body: {
-                      type: "box",
-                      layout: "vertical",
-                      contents: [
+                  "type": "flex",
+                  "altText": "จองคิวสำเร็จ",
+                  "contents": {
+                    "type": "bubble",
+                    "body": {
+                      "type": "box",
+                      "layout": "vertical",
+                      "contents": [
                         {
-                          type: "text",
-                          text: "คุณได้จองคิว",
-                          weight: "bold",
-                          color: "#1DB446",
-                          size: "md",
-                          align: "center",
+                          "type": "text",
+                          "text": "คุณได้จองคิว",
+                          "weight": "bold",
+                          "color": "#1DB446",
+                          "size": "md",
+                          "align": "center",
                         },
                         {
-                          type: "text",
-                          text: "ชื่อ " + name,
-                          weight: "bold",
-                          size: "lg",
-                          margin: "md",
-                          align: "center",
+                          "type": "text",
+                          "text": "ชื่อ " + name,
+                          "weight": "bold",
+                          "size": "lg",
+                          "margin": "md",
+                          "align": "center",
                         },
                         {
-                          type: "separator",
-                          margin: "xxl",
+                          "type": "separator",
+                          "margin": "xxl",
                         },
                         {
-                          type: "text",
-                          text: dateTH,
-                          weight: "bold",
-                          size: "lg",
-                          margin: "md",
-                          align: "center",
+                          "type": "text",
+                          "text": dateTH,
+                          "weight": "bold",
+                          "size": "lg",
+                          "margin": "md",
+                          "align": "center",
                         },
                         {
-                          type: "text",
-                          text: "เวลา " + time,
-                          size: "xl",
-                          wrap: true,
-                          weight: "bold",
-                          align: "center",
+                          "type": "text",
+                          "text": "เวลา " + time,
+                          "size": "xl",
+                          "wrap": true,
+                          "weight": "bold",
+                          "align": "center",
                         },
                         {
-                          type: "separator",
-                          margin: "xxl",
+                          "type": "separator",
+                          "margin": "xxl",
                         },
                         {
-                          type: "box",
-                          layout: "vertical",
-                          margin: "xxl",
-                          spacing: "sm",
-                          contents: [
+                          "type": "box",
+                          "layout": "vertical",
+                          "margin": "xxl",
+                          "spacing": "sm",
+                          "contents": [
                             {
-                              type: "text",
-                              text: "บริการ " + service,
-                              size: "lg",
-                              weight: "bold",
-                              align: "center",
+                              "type": "text",
+                              "text": "บริการ " + service,
+                              "size": "lg",
+                              "weight": "bold",
+                              "align": "center",
                             },
                             {
-                              type: "separator",
-                              margin: "xxl",
+                              "type": "separator",
+                              "margin": "xxl",
                             },
                             {
-                              type: "text",
-                              text: "โรงพยาบาลปากพลี นครนายก",
-                              align: "center",
+                              "type": "text",
+                              "text": "โรงพยาบาลปากพลี นครนายก",
+                              "align": "center",
                             },
                           ],
                         },
                       ],
                     },
-                    styles: {
-                      footer: {
-                        separator: true,
+                    "styles": {
+                      "footer": {
+                        "separator": true,
                       },
                     },
                   },
