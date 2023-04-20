@@ -441,7 +441,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                         },
                         {
                           "type": "text",
-                          "text": "ชื่อ " + fullname,
+                          "text": "ชื่อ ",
                           "weight": "bold",
                           "size": "lg",
                           "margin": "md",
