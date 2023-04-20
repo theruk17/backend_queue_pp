@@ -46,59 +46,49 @@ app.post('/data', jsonParser, function (req, res, next) {
     )
 })
 
-app.post('/register_line', jsonParser, function (req, resp, next) {
-        const c_id = '1660743780'
-        const actoken = req.body.actoken
-        const token = actoken.replace('"','').replace('"','')
-        
-        axios.get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
-        .then(res => {
-            
+app.post("/register_line", jsonParser, function (req, resp, next) {
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
 
-            if(res.data.client_id === c_id && res.data.expires_in > 0) {
-                axios.get(
-                    `https://api.line.me/v2/profile`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                 })
-                 .then(res => {
-                    const uid = res.data.userId
-                    const pic = res.data.pictureUrl
-                    connection.execute(
-                        'INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?',
-                        [uid, pic, uid, pic],
-                        function(err, results, fields) {
-                            if (err) {
-                                resp.send({ status: 'error', message: err })
-                                return
-                            } else {
-                                connection.query(
-                                    'SELECT cid FROM users WHERE uid=?',
-                                    [uid],
-                                    function(err, results, fields) {
-                                        if (err) {
-                                            resp.json({status: 'error', message: err})
-                                            return
-                                        } else {
-                                            resp.json(results)
-                                        }
-                                        
-                                    })
-                                
-                            }
-                            
-                        
-                        }
-                    )
-                 })
-            }
-        })
-        
-
-        
-   
-    
-  
-})
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            const pic = res.data.pictureUrl;
+            connection.execute(
+              "INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?",
+              [uid, pic, uid, pic],
+              function (err, results, fields) {
+                if (err) {
+                  resp.send({ status: "error", message: err });
+                  return;
+                } else {
+                  connection.query(
+                    "SELECT cid FROM users WHERE uid=?",
+                    [uid],
+                    function (err, results, fields) {
+                      if (err) {
+                        resp.json({ status: "error", message: err });
+                        return;
+                      } else {
+                        resp.json(results);
+                      }
+                    }
+                  );
+                }
+              }
+            );
+          });
+      }
+    });
+});
 
 app.post('/check_cid', jsonParser, function (req, res, next) {
     connection.query(
@@ -242,22 +232,39 @@ app.get('/checkdate', jsonParser, function (req, res, next) {
         })
 })
 
-app.post('/checkbooking', jsonParser, function (req, res, next) {
-    const uid = req.body.uid
-    connection.query(
-        `SELECT CONCAT(u.fname,' ',u.lname) as fullname, u.cid, b.booking_service, b.booking_date,b.booking_time 
-        FROM booking_list b
-        LEFT JOIN users u ON u.uid = b.uid
-        WHERE b.booking_status = 'Y' AND b.uid = ?`,
-        [uid],
-        function(err, results, fields) {
-            if (err) {
-                res.json({status: 'error', message: err})
-                return
-            }
-            res.json(results)
-        })
-})
+app.post("/checkbooking", jsonParser, function (req, resp, next) {
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            connection.execute(
+              `SELECT CONCAT(u.fname,' ',u.lname) as fullname, u.cid, b.booking_service, b.booking_date,b.booking_time 
+              FROM booking_list b
+              LEFT JOIN users u ON u.uid = b.uid
+              WHERE b.booking_status = 'Y' AND b.uid = ?`,
+              [uid],
+              function (err, results, fields) {
+                if (err) {
+                  resp.json({ status: "error", message: err });
+                  return;
+                }
+                resp.json(results);
+              }
+            );
+          });
+      }
+    });
+});
 
 app.post('/checktime', jsonParser, function (req, res, next) {
     connection.query(
