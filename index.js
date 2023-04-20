@@ -520,7 +520,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                   .post("https://api.line.me/v2/bot/message/push", data, {
                     headers: {
                       'Content-Type': 'application/json',
-                      'Authorization': 'Bearer '+process.env.KEY_API,
+                      'Authorization': 'Bearer 56Aui4z24d3W+e+zoIBiD0Jiz/02lQq1F6g9X/0Ojv8MKx1JnjzwoRclTCIy5RtxG0aNxIfiBmDxSj0gg9UBOVVhBN1jRlA27vGaMFJ6OS2s2/1l+r/3Bpv/M3dWUblqJySzWZ7YkwpVrBRvB+lt8AdB04t89/1O/w1cDnyilFU=',
                     },
                   })
                   .then(function (response) {
