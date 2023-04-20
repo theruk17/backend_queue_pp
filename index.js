@@ -62,6 +62,9 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             const pic = res.data.pictureUrl;
+            if(pic === null || pic === '') {
+                pic = '#'
+            }
             connection.execute(
               "INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?",
               [uid, pic, uid, pic],
