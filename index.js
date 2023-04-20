@@ -105,24 +105,41 @@ app.post('/check_cid', jsonParser, function (req, res, next) {
         })
 })
 
-app.put('/register_user', jsonParser, function (req, res, next) {
-    const cid = req.body.idcard
-    const fname = req.body.fname
-    const lname = req.body.lname
-    
-    connection.execute(
-        'UPDATE users SET cid=?, fname=?, lname=? WHERE uid=?',
-        [cid, fname, lname, req.body.uid],
-        function(err, results, fields) {
-            if (err) {
-                res.json({status: 'error', message: err})
-                return
-            } else {
-                res.json('done')
-            }
-            
-        })
-})
+app.post("/register_user", jsonParser, function (req, resp, next) {
+  const cid = req.body.idcard;
+  const fname = req.body.fname;
+  const lname = req.body.lname;
+
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            connection.execute(
+              "UPDATE users SET cid=?, fname=?, lname=? WHERE uid=?",
+              [cid, fname, lname, uid],
+              function (err, results, fields) {
+                if (err) {
+                  resp.json({ status: "error", message: err });
+                  return;
+                } else {
+                  resp.json("done");
+                }
+              }
+            );
+          });
+      }
+    });
+});
 
 app.post('/register_user_other', jsonParser, function (req, res, next) {
     const cid = req.body.idcard
