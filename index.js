@@ -513,8 +513,8 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                 axios
                   .post("https://api.line.me/v2/bot/message/push", data, {
                     headers: {
-                      Authorization: "Bearer " + process.env.KEY_API,
-                      "Content-Type": "application/json",
+                      'Authorization': 'Bearer ' + process.env.KEY_API,
+                      'Content-Type': 'application/json',
                     },
                   })
                   .then(function (response) {
