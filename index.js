@@ -417,7 +417,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
               "SELECT CONCAT(fname,' ',lname) as fullname FROM users WHERE uid = ?",
               [uid],
               function (err, results) {
-                fullname = results.fullname
+                fullname = results.data.fullname
               })
             let data = JSON.stringify({
               to: uid,
@@ -441,7 +441,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                         },
                         {
                           type: "text",
-                          text: "ชื่อ ",
+                          text: "ชื่อ "+fullname,
                           weight: "bold",
                           size: "lg",
                           margin: "md",
@@ -520,7 +520,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                   .post("https://api.line.me/v2/bot/message/push", data, {
                     headers: {
                       'Content-Type': 'application/json',
-                      'Authorization': 'Bearer 56Aui4z24d3W+e+zoIBiD0Jiz/02lQq1F6g9X/0Ojv8MKx1JnjzwoRclTCIy5RtxG0aNxIfiBmDxSj0gg9UBOVVhBN1jRlA27vGaMFJ6OS2s2/1l+r/3Bpv/M3dWUblqJySzWZ7YkwpVrBRvB+lt8AdB04t89/1O/w1cDnyilFU=',
+                      'Authorization': 'Bearer '+process.env.KEY_API,
                     },
                   })
                   .then(function (response) {
