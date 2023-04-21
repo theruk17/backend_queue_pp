@@ -411,7 +411,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
 })
 
 app.post("/submit", jsonParser, function (req, resp, next) {
-  let fullname = ''
+  let fullname = "";
   const date = req.body.date;
   const dateTH = req.body.dateth;
   const time = req.body.time;
@@ -435,94 +435,95 @@ app.post("/submit", jsonParser, function (req, resp, next) {
               "SELECT CONCAT(fname,' ',lname) as fullname FROM users WHERE uid = ?",
               [uid],
               function (err, results) {
-                fullname = results.fullname
-              })
+                fullname = results.fullname;
+              }
+            );
             let data = JSON.stringify({
-              to: uid,
-              messages: [
+              "to": uid,
+              "messages": [
                 {
-                  type: "flex",
-                  altText: "จองคิวสำเร็จ",
-                  contents: {
-                    type: "bubble",
-                    body: {
-                      type: "box",
-                      layout: "vertical",
-                      contents: [
+                  "type": "flex",
+                  "altText": "จองคิวสำเร็จ",
+                  "contents": {
+                    "type": "bubble",
+                    "body": {
+                      "type": "box",
+                      "layout": "vertical",
+                      "contents": [
                         {
-                          type: "text",
-                          text: "คุณได้จองคิว",
-                          weight: "bold",
-                          color: "#1DB446",
-                          size: "md",
-                          align: "center"
+                          "type": "text",
+                          "text": "คุณได้จองคิว",
+                          "weight": "bold",
+                          "color": "#1DB446",
+                          "size": "md",
+                          "align": "center",
                         },
                         {
-                          type: "text",
-                          text: "ชื่อ ",
-                          weight: "bold",
-                          size: "lg",
-                          margin: "md",
-                          align: "center"
+                          "type": "text",
+                          "text": "ชื่อ ",
+                          "weight": "bold",
+                          "size": "lg",
+                          "margin": "md",
+                          "align": "center",
                         },
                         {
-                          type: "separator",
-                          margin: "xxl"
+                          "type": "separator",
+                          "margin": "xxl",
                         },
                         {
-                          type: "text",
-                          text: dateTH,
-                          weight: "bold",
-                          size: "lg",
-                          margin: "md",
-                          align: "center"
+                          "type": "text",
+                          "text": dateTH,
+                          "weight": "bold",
+                          "size": "lg",
+                          "margin": "md",
+                          "align": "center",
                         },
                         {
-                          type: "text",
-                          text: "เวลา " + time,
-                          size: "xl",
-                          wrap: true,
-                          weight: "bold",
-                          align: "center"
+                          "type": "text",
+                          "text": "เวลา " + time,
+                          "size": "xl",
+                          "wrap": true,
+                          "weight": "bold",
+                          "align": "center",
                         },
                         {
-                          type: "separator",
-                          margin: "xxl"
+                          "type": "separator",
+                          "margin": "xxl",
                         },
                         {
-                          type: "box",
-                          layout: "vertical",
-                          margin: "xxl",
-                          spacing: "sm",
-                          contents: [
+                          "type": "box",
+                          "layout": "vertical",
+                          "margin": "xxl",
+                          "spacing": "sm",
+                          "contents": [
                             {
-                              type: "text",
-                              text: "บริการ " + service,
-                              size: "lg",
-                              weight: "bold",
-                              align: "center"
+                              "type": "text",
+                              "text": "บริการ " + service,
+                              "size": "lg",
+                              "weight": "bold",
+                              "align": "center",
                             },
                             {
-                              type: "separator",
-                              margin: "xxl"
+                              "type": "separator",
+                              "margin": "xxl",
                             },
                             {
-                              type: "text",
-                              text: "โรงพยาบาลปากพลี นครนายก",
-                              align: "center"
-                            }
-                          ]
-                        }
-                      ]
+                              "type": "text",
+                              "text": "โรงพยาบาลปากพลี นครนายก",
+                              "align": "center",
+                            },
+                          ],
+                        },
+                      ],
                     },
-                    styles: {
-                      footer: {
-                        separator: true
-                      }
-                    }
-                  }
-                }
-              ]
+                    "styles": {
+                      "footer": {
+                        "separator": true,
+                      },
+                    },
+                  },
+                },
+              ],
             });
 
             connection.query(
@@ -537,9 +538,9 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                 axios
                   .post("https://api.line.me/v2/bot/message/push", data, {
                     headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': 'Bearer 56Aui4z24d3W+e+zoIBiD0Jiz/02lQq1F6g9X/0Ojv8MKx1JnjzwoRclTCIy5RtxG0aNxIfiBmDxSj0gg9UBOVVhBN1jRlA27vGaMFJ6OS2s2/1l+r/3Bpv/M3dWUblqJySzWZ7YkwpVrBRvB+lt8AdB04t89/1O/w1cDnyilFU=',
-                    },
+                      'Authorization': 'Bearer '+process.env.KEY_API,
+                      'Content-Type': 'application/json'
+                  },
                   })
                   .then(function (response) {
                     resp.json(response.data);
