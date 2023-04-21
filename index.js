@@ -316,7 +316,7 @@ app.post('/checktime', jsonParser, function (req, res, next) {
         })
 })
 
-app.put('/cancel_queue', jsonParser, function (req, res, next) {
+app.put('/cancel_queue', jsonParser, function (req, resp, next) {
   const c_id = "1660743780";
   const actoken = req.body.actoken;
   const token = actoken.replace('"', "").replace('"', "");
@@ -336,10 +336,10 @@ app.put('/cancel_queue', jsonParser, function (req, res, next) {
               [uid],
               function(err, results, fields) {
                 if (err) {
-                    res.json({status: 'error', message: err})
+                    resp.json({status: 'error', message: err})
                     return
                 } else {
-                    res.json("done")
+                    resp.json("done")
                     let data = JSON.stringify({
                         "to": uid,
                         "messages": [
