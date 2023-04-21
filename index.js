@@ -411,7 +411,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
 })
 
 app.post("/submit", jsonParser, function (req, resp, next) {
-  const fullname = "";
+  
   const date = req.body.date;
   const dateTH = req.body.dateth;
   const time = req.body.time;
@@ -431,13 +431,14 @@ app.post("/submit", jsonParser, function (req, resp, next) {
           })
           .then((res) => {
             const uid = res.data.userId;
+            let fullname = "";
             connection.query(
               "SELECT CONCAT(fname,' ',lname) as fullname FROM users WHERE uid = ?",
               [uid],
               function (err, results) {
                 
                 fullname = results[0].fullname;
-                console.log(fullname)
+                
               }
             );
             
