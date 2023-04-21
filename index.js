@@ -32,35 +32,19 @@ app.get('/admin_data', jsonParser, function (req, res, next) {
 })
 
 app.post("/data", jsonParser, function (req, resp, next) {
-  const c_id = "1660743780";
-  const actoken = req.body.actoken;
-  const token = actoken.replace('"', "").replace('"', "");
-
-  axios
-    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
-    .then((res) => {
-      if (res.data.client_id === c_id && res.data.expires_in > 0) {
-        axios
-          .get(`https://api.line.me/v2/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((res) => {
-            const uid = res.data.userId;
-            connection.execute(
-              "SELECT * FROM users WHERE uid = ?",
-              [uid],
-              function (err, results, fields) {
-                if (err) {
-                  resp.json({ status: "error", message: err });
-                  return;
-                } else {
-                  resp.json(results);
-                }
-              }
-            );
-          });
+  const cid = req.body.cid;
+  connection.execute(
+    "SELECT * FROM users WHERE cid = ?",
+    [cid],
+    function (err, results, fields) {
+      if (err) {
+        resp.json({ status: "error", message: err });
+        return;
+      } else {
+        resp.json(results);
       }
-    });
+    }
+  );
 });
 
 app.post("/register_line", jsonParser, function (req, resp, next) {
@@ -349,9 +333,9 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT CONCAT(u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
+              `SELECT b.id, CONCAT(u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
               FROM booking_list b
-              LEFT JOIN users u ON u.uid = b.uid
+              LEFT JOIN users u ON u.cid = b.cid
               WHERE b.booking_status = 'Y' AND b.uid = ?`,
               [uid],
               function (err, results, fields) {
@@ -381,6 +365,7 @@ app.post('/checktime', jsonParser, function (req, res, next) {
 })
 
 app.put('/cancel_queue', jsonParser, function (req, resp, next) {
+  const id = req.body.id;
   const c_id = "1660743780";
   const actoken = req.body.actoken;
   const token = actoken.replace('"', "").replace('"', "");
@@ -396,8 +381,8 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `UPDATE booking_list SET booking_status = 'N' WHERE uid = ?`,
-              [uid],
+              `UPDATE booking_list SET booking_status = 'N' WHERE id = ?`,
+              [id],
               function(err, results, fields) {
                 if (err) {
                     resp.json({status: 'error', message: err})
@@ -475,7 +460,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
 })
 
 app.post("/submit", jsonParser, function (req, resp, next) {
-  
+  const cid = req.body.cid;
   const date = req.body.date;
   const dateTH = req.body.dateth;
   const time = req.body.time;
@@ -508,8 +493,8 @@ app.post("/submit", jsonParser, function (req, resp, next) {
             
 
             connection.query(
-              "INSERT INTO booking_list (uid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?)",
-              [uid, date, time, service],
+              "INSERT INTO booking_list (uid, cid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?, ?)",
+              [uid, cid, date, time, service],
               function (err, results) {
                 if (err) {
                   resp.json({ status: "error", message: err });
