@@ -435,9 +435,8 @@ app.post("/submit", jsonParser, function (req, resp, next) {
               "SELECT CONCAT(fname,' ',lname) as fullname FROM users WHERE uid = ?",
               [uid],
               function (err, results) {
-                console.log(results)
-                console.log(results.fullname)
-                fullname = results.fullname;
+                console.log(results[0].fullname)
+                fullname = results[0].fullname;
               }
             );
             
