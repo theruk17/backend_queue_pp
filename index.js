@@ -317,79 +317,97 @@ app.post('/checktime', jsonParser, function (req, res, next) {
 })
 
 app.put('/cancel_queue', jsonParser, function (req, res, next) {
-    const uid = req.body.uid
-    connection.query(
-        "UPDATE booking_list SET booking_status = 'N' WHERE uid = ?",
-        [uid],
-        function(err, results, fields) {
-            if (err) {
-                res.json({status: 'error', message: err})
-                return
-            } else {
-                res.json("done")
-                let data = JSON.stringify({
-                    "to": uid,
-                    "messages": [
-                      {
-                        "type": "flex",
-                        "altText": "คุณได้ยกเลิกคิว",
-                        "contents": {
-                          "type": "bubble",
-                          "body": {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                              {
-                                "type": "text",
-                                "text": "คุณได้ยกเลิกคิว",
-                                "weight": "bold",
-                                "color": "#1DB446",
-                                "size": "md",
-                                "align": "center"
-                              },
-                              {
-                                "type": "separator",
-                                "margin": "xxl"
-                              },
-                              
-                              {
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            connection.execute(
+              `UPDATE booking_list SET booking_status = 'N' WHERE uid = ?`,
+              [uid],
+              function(err, results, fields) {
+                if (err) {
+                    res.json({status: 'error', message: err})
+                    return
+                } else {
+                    res.json("done")
+                    let data = JSON.stringify({
+                        "to": uid,
+                        "messages": [
+                          {
+                            "type": "flex",
+                            "altText": "คุณได้ยกเลิกคิว",
+                            "contents": {
+                              "type": "bubble",
+                              "body": {
                                 "type": "box",
                                 "layout": "vertical",
-                                "margin": "xxl",
-                                "spacing": "sm",
                                 "contents": [
-                                  
                                   {
                                     "type": "text",
-                                    "text": "โรงพยาบาลปากพลี นครนายก",
+                                    "text": "คุณได้ยกเลิกคิว",
+                                    "weight": "bold",
+                                    "color": "#1DB446",
+                                    "size": "md",
                                     "align": "center"
+                                  },
+                                  {
+                                    "type": "separator",
+                                    "margin": "xxl"
+                                  },
+                                  
+                                  {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "margin": "xxl",
+                                    "spacing": "sm",
+                                    "contents": [
+                                      
+                                      {
+                                        "type": "text",
+                                        "text": "โรงพยาบาลปากพลี นครนายก",
+                                        "align": "center"
+                                      }
+                                    ]
                                   }
-                                ]
+                                ],
+                                
+                              },
+                              "styles": {
+                                "footer": {
+                                  "separator": true
+                                }
                               }
-                            ],
-                            
-                          },
-                          "styles": {
-                            "footer": {
-                              "separator": true
                             }
                           }
-                        }
-                      }
-                    ]
-                  });
-                  axios.post('https://api.line.me/v2/bot/message/push', data, {
-                headers: {
-                    'Authorization': 'Bearer '+process.env.KEY_API,
-                    'Content-Type': 'application/json'
-                },
+                        ]
+                      });
+                      axios.post('https://api.line.me/v2/bot/message/push', data, {
+                    headers: {
+                        'Authorization': 'Bearer '+process.env.KEY_API,
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(function (response) {
+                    console.log(JSON.stringify(response.data));
+                    
+                })
+                }
             })
-            .then(function (response) {
-                console.log(JSON.stringify(response.data));
-                
-            })
-            }
-        })
+            
+          });
+      }
+    });
+    
 })
 
 app.post("/submit", jsonParser, function (req, resp, next) {
