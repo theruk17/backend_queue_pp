@@ -73,7 +73,7 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
                 if(results.length > 0) {
                   if (results[0].uid === uid && results[0].pic_url === pic) {
                     connection.query(
-                      "SELECT cid, pic_url FROM users WHERE uid=?",
+                      "SELECT cid FROM users WHERE uid=?",
                       [uid],
                       function (err, results, fields) {
                         if (err) {
@@ -120,7 +120,7 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
                         return;
                       } else {
                         connection.query(
-                          "SELECT cid FROM users WHERE uid=?",
+                          "SELECT cid, pic_url FROM users WHERE uid=?",
                           [uid],
                           function (err, results, fields) {
                             if (err) {
