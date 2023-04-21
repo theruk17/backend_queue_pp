@@ -64,7 +64,7 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
             const uid = res.data.userId;
             let pic = res.data.pictureUrl;
             if(pic == null || pic == '') {
-                pic = '#'
+                pic = 'https://res.cloudinary.com/drllzqbk0/image/upload/v1682071258/people_h1vjj6.jpg'
             }
             connection.query(
               "SELECT uid, pic_url FROM users WHERE uid= ? and main = 'Y'",
