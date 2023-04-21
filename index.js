@@ -70,44 +70,46 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
               "SELECT uid, pic_url FROM users WHERE uid= ? and main = 'Y'",
               [uid],
               function (err, results, fields) {
-                if (results[0].uid === uid && results[0].pic_url === pic) {
-                  connection.query(
-                    "SELECT cid FROM users WHERE uid=?",
-                    [uid],
-                    function (err, results, fields) {
-                      if (err) {
-                        resp.json({ status: "error", message: err });
-                        return;
-                      } else {
-                        resp.json(results);
+                if(results.length > 0) {
+                  if (results[0].uid === uid && results[0].pic_url === pic) {
+                    connection.query(
+                      "SELECT cid FROM users WHERE uid=?",
+                      [uid],
+                      function (err, results, fields) {
+                        if (err) {
+                          resp.json({ status: "error", message: err });
+                          return;
+                        } else {
+                          resp.json(results);
+                        }
                       }
-                    }
-                  );
-                  return;
-                } else if(results[0].uid === uid && results[0].pic_url != pic) {
-                  connection.execute(
-                    "UPDATE users SET pic_url = ? WHERE uid = ?",
-                    [pic, uid],
-                    function (err, results, fields) {
-                      if (err) {
-                        resp.send({ status: "error", message: err });
-                        return;
-                      } else {
-                        connection.query(
-                          "SELECT cid FROM users WHERE uid=?",
-                          [uid],
-                          function (err, results, fields) {
-                            if (err) {
-                              resp.json({ status: "error", message: err });
-                              return;
-                            } else {
-                              resp.json(results);
+                    );
+                    return;
+                  } else if(results[0].uid === uid && results[0].pic_url != pic) {
+                    connection.execute(
+                      "UPDATE users SET pic_url = ? WHERE uid = ?",
+                      [pic, uid],
+                      function (err, results, fields) {
+                        if (err) {
+                          resp.send({ status: "error", message: err });
+                          return;
+                        } else {
+                          connection.query(
+                            "SELECT cid FROM users WHERE uid=?",
+                            [uid],
+                            function (err, results, fields) {
+                              if (err) {
+                                resp.json({ status: "error", message: err });
+                                return;
+                              } else {
+                                resp.json(results);
+                              }
                             }
-                          }
-                        );
+                          );
+                        }
                       }
-                    }
-                  );
+                    );
+                  }
                 } else {
                   connection.execute(
                     "INSERT INTO users (uid, pic_url, main) VALUES (?, ?, ?)",
