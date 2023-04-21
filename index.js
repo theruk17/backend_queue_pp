@@ -156,7 +156,7 @@ app.post('/check_cid', jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.query(
-              "SELECT cid FROM users WHERE uid=? AND main = 'Y'",
+              "SELECT * FROM users WHERE uid=? AND main = 'Y'",
               [uid],
               function (err, results, fields) {
                 if (err) {
