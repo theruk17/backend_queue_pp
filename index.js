@@ -451,7 +451,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                   resp.json({ status: "error", message: err });
                   return;
                 } else {
-                  resp.json("done")
+                  //resp.json("done")
                   let data = JSON.stringify({
                   "to": uid,
                   "messages": [
@@ -547,10 +547,10 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                   },
                   })
                   .then(function (response) {
-                    console.log(JSON.stringify(response.data));
+                    resp.json(response.data);
                   })
                   .catch(function (error) {
-                    console.log(error);
+                    resp.json(error);
                   });
                 }
               }
