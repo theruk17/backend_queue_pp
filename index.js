@@ -528,7 +528,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                                 }
                               ]
                             }
-                          ],
+                          ]
                         },
                         "styles": {
                           "footer": {
