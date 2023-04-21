@@ -470,7 +470,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                               "weight": "bold",
                               "color": "#1DB446",
                               "size": "md",
-                              "align": "center",
+                              "align": "center"
                             },
                             {
                               "type": "text",
@@ -478,11 +478,11 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                               "weight": "bold",
                               "size": "lg",
                               "margin": "md",
-                              "align": "center",
+                              "align": "center"
                             },
                             {
                               "type": "separator",
-                              "margin": "xxl",
+                              "margin": "xxl"
                             },
                             {
                               "type": "text",
@@ -490,7 +490,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                               "weight": "bold",
                               "size": "lg",
                               "margin": "md",
-                              "align": "center",
+                              "align": "center"
                             },
                             {
                               "type": "text",
@@ -498,11 +498,11 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                               "size": "xl",
                               "wrap": true,
                               "weight": "bold",
-                              "align": "center",
+                              "align": "center"
                             },
                             {
                               "type": "separator",
-                              "margin": "xxl",
+                              "margin": "xxl"
                             },
                             {
                               "type": "box",
@@ -515,32 +515,32 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                                   "text": "บริการ " + service,
                                   "size": "lg",
                                   "weight": "bold",
-                                  "align": "center",
+                                  "align": "center"
                                 },
                                 {
                                   "type": "separator",
-                                  "margin": "xxl",
+                                  "margin": "xxl"
                                 },
                                 {
                                   "type": "text",
                                   "text": "โรงพยาบาลปากพลี นครนายก",
-                                  "align": "center",
-                                },
-                              ],
-                            },
+                                  "align": "center"
+                                }
+                              ]
+                            }
                           ],
                         },
                         "styles": {
                           "footer": {
-                            "separator": true,
-                          },
-                        },
-                      },
-                    },
-                  ],
+                            "separator": true
+                          }
+                        }
+                      }
+                    }
+                  ]
                 });
                 axios
-                  .post("https://api.line.me/v2/bot/message/push", data, {
+                  .post('https://api.line.me/v2/bot/message/push', data, {
                     headers: {
                       'Authorization': 'Bearer '+process.env.KEY_API,
                       'Content-Type': 'application/json'
