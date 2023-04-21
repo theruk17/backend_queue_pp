@@ -333,7 +333,7 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT b.id, CONCAT(u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
+              `SELECT b.id, b.cid, CONCAT(u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
               FROM booking_list b
               LEFT JOIN users u ON u.cid = b.cid
               WHERE b.booking_status = 'Y' AND b.uid = ?`,
