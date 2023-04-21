@@ -82,7 +82,7 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
             if(pic == null || pic == '') {
                 pic = '#'
             }
-            connection.execute(
+            connection.query(
               "SELECT uid, pic_url FROM users WHERE uid= ? and primary = 'Y'",
               [uid],
               function (err, results, fields) {
