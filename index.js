@@ -438,93 +438,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                 fullname = results.fullname;
               }
             );
-            let data = JSON.stringify({
-              "to": uid,
-              "messages": [
-                {
-                  "type": "flex",
-                  "altText": "จองคิวสำเร็จ",
-                  "contents": {
-                    "type": "bubble",
-                    "body": {
-                      "type": "box",
-                      "layout": "vertical",
-                      "contents": [
-                        {
-                          "type": "text",
-                          "text": "คุณได้จองคิว",
-                          "weight": "bold",
-                          "color": "#1DB446",
-                          "size": "md",
-                          "align": "center",
-                        },
-                        {
-                          "type": "text",
-                          "text": "ชื่อ ",
-                          "weight": "bold",
-                          "size": "lg",
-                          "margin": "md",
-                          "align": "center",
-                        },
-                        {
-                          "type": "separator",
-                          "margin": "xxl",
-                        },
-                        {
-                          "type": "text",
-                          "text": dateTH,
-                          "weight": "bold",
-                          "size": "lg",
-                          "margin": "md",
-                          "align": "center",
-                        },
-                        {
-                          "type": "text",
-                          "text": "เวลา " + time,
-                          "size": "xl",
-                          "wrap": true,
-                          "weight": "bold",
-                          "align": "center",
-                        },
-                        {
-                          "type": "separator",
-                          "margin": "xxl",
-                        },
-                        {
-                          "type": "box",
-                          "layout": "vertical",
-                          "margin": "xxl",
-                          "spacing": "sm",
-                          "contents": [
-                            {
-                              "type": "text",
-                              "text": "บริการ " + service,
-                              "size": "lg",
-                              "weight": "bold",
-                              "align": "center",
-                            },
-                            {
-                              "type": "separator",
-                              "margin": "xxl",
-                            },
-                            {
-                              "type": "text",
-                              "text": "โรงพยาบาลปากพลี นครนายก",
-                              "align": "center",
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    "styles": {
-                      "footer": {
-                        "separator": true,
-                      },
-                    },
-                  },
-                },
-              ],
-            });
+            
 
             connection.query(
               "INSERT INTO booking_list (uid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?)",
@@ -533,8 +447,95 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                 if (err) {
                   resp.json({ status: "error", message: err });
                   return;
-                }
-
+                } else {
+                  resp.json("done")
+                  let data = JSON.stringify({
+                  "to": uid,
+                  "messages": [
+                    {
+                      "type": "flex",
+                      "altText": "จองคิวสำเร็จ",
+                      "contents": {
+                        "type": "bubble",
+                        "body": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "text",
+                              "text": "คุณได้จองคิว",
+                              "weight": "bold",
+                              "color": "#1DB446",
+                              "size": "md",
+                              "align": "center",
+                            },
+                            {
+                              "type": "text",
+                              "text": "ชื่อ ",
+                              "weight": "bold",
+                              "size": "lg",
+                              "margin": "md",
+                              "align": "center",
+                            },
+                            {
+                              "type": "separator",
+                              "margin": "xxl",
+                            },
+                            {
+                              "type": "text",
+                              "text": dateTH,
+                              "weight": "bold",
+                              "size": "lg",
+                              "margin": "md",
+                              "align": "center",
+                            },
+                            {
+                              "type": "text",
+                              "text": "เวลา " + time,
+                              "size": "xl",
+                              "wrap": true,
+                              "weight": "bold",
+                              "align": "center",
+                            },
+                            {
+                              "type": "separator",
+                              "margin": "xxl",
+                            },
+                            {
+                              "type": "box",
+                              "layout": "vertical",
+                              "margin": "xxl",
+                              "spacing": "sm",
+                              "contents": [
+                                {
+                                  "type": "text",
+                                  "text": "บริการ " + service,
+                                  "size": "lg",
+                                  "weight": "bold",
+                                  "align": "center",
+                                },
+                                {
+                                  "type": "separator",
+                                  "margin": "xxl",
+                                },
+                                {
+                                  "type": "text",
+                                  "text": "โรงพยาบาลปากพลี นครนายก",
+                                  "align": "center",
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        "styles": {
+                          "footer": {
+                            "separator": true,
+                          },
+                        },
+                      },
+                    },
+                  ],
+                });
                 axios
                   .post("https://api.line.me/v2/bot/message/push", data, {
                     headers: {
@@ -548,7 +549,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                   .catch(function (error) {
                     resp.json(error);
                   });
-                resp.json(data);
+                }
               }
             );
           });
