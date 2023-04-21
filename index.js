@@ -18,7 +18,7 @@ app.use(cors())
 
 app.get('/admin_data', jsonParser, function (req, res, next) {
     connection.query(
-        'SELECT b.id, u.pic_url, u.cid, CONCAT(u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status FROM booking_list b LEFT JOIN users u ON u.uid=b.uid',
+        'SELECT b.id, u.pic_url, u.cid, CONCAT(u.pname,u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status FROM booking_list b LEFT JOIN users u ON u.uid=b.uid',
         
         function(err, results, fields) {
             if (err) {
@@ -174,6 +174,7 @@ app.post('/check_cid', jsonParser, function (req, resp, next) {
 
 app.post("/register_user", jsonParser, function (req, resp, next) {
   const cid = req.body.idcard;
+  const pname = req.body.pname;
   const fname = req.body.fname;
   const lname = req.body.lname;
 
@@ -192,8 +193,8 @@ app.post("/register_user", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              "UPDATE users SET cid=?, fname=?, lname=? WHERE uid=?",
-              [cid, fname, lname, uid],
+              "UPDATE users SET cid=?, pname=?, fname=?, lname=? WHERE uid=?",
+              [cid, pname, fname, lname, uid],
               function (err, results, fields) {
                 if (err) {
                   resp.json({ status: "error", message: err });
@@ -210,6 +211,7 @@ app.post("/register_user", jsonParser, function (req, resp, next) {
 
 app.post('/register_user_other', jsonParser, function (req, resp, next) {
   const cid = req.body.idcard
+  const pname = req.body.pname
   const fname = req.body.fname
   const lname = req.body.lname
   const other = req.body.for
@@ -230,8 +232,8 @@ app.post('/register_user_other', jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              'INSERT INTO users (uid, related, cid, fname, lname, main) VALUES (?, ?, ?, ?, ?, ?)',
-              [uid, other, cid, fname, lname, type],
+              'INSERT INTO users (uid, related, cid, pname, fname, lname, main) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              [uid, other, cid, pname, fname, lname, type],
               function(err, results, fields) {
                 if (err) {
                     resp.json({status: 'error', message: err})
@@ -350,7 +352,7 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT b.id, b.cid, CONCAT(u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
+              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
               FROM booking_list b
               LEFT JOIN users u ON u.cid = b.cid
               WHERE b.booking_status = 'Y' AND b.uid = ?`,
@@ -499,7 +501,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
             const uid = res.data.userId;
             let fullname = "";
             connection.query(
-              "SELECT CONCAT(fname,' ',lname) as fullname FROM users WHERE cid = ?",
+              "SELECT CONCAT(pname,fname,' ',lname) as fullname FROM users WHERE cid = ?",
               [cid],
               function (err, results) {
                 
