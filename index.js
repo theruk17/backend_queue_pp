@@ -83,13 +83,10 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
                 pic = '#'
             }
             connection.execute(
-              "INSERT INTO users (uid, pic_url) VALUES (?, ?) ON DUPLICATE KEY UPDATE uid= ?, pic_url= ?",
-              [uid, pic, uid, pic],
+              "SELECT uid, pic_url FROM users WHERE uid= ? and primary = 'Y'",
+              [uid],
               function (err, results, fields) {
-                if (err) {
-                  resp.send({ status: "error", message: err });
-                  return;
-                } else {
+                if (results[0].uid === uid && results[0].pic_url === pic) {
                   connection.query(
                     "SELECT cid FROM users WHERE uid=?",
                     [uid],
@@ -99,6 +96,55 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
                         return;
                       } else {
                         resp.json(results);
+                      }
+                    }
+                  );
+                  return;
+                } else if(results[0].uid === uid && results[0].pic_url != pic) {
+                  connection.execute(
+                    "UPDATE users SET pic_url = ? WHERE uid = ?",
+                    [pic, uid],
+                    function (err, results, fields) {
+                      if (err) {
+                        resp.send({ status: "error", message: err });
+                        return;
+                      } else {
+                        connection.query(
+                          "SELECT cid FROM users WHERE uid=?",
+                          [uid],
+                          function (err, results, fields) {
+                            if (err) {
+                              resp.json({ status: "error", message: err });
+                              return;
+                            } else {
+                              resp.json(results);
+                            }
+                          }
+                        );
+                      }
+                    }
+                  );
+                } else {
+                  connection.execute(
+                    "INSERT INTO users (uid, pic_url, primary) VALUES (?, ?, ?)",
+                    [uid, pic, 'Y'],
+                    function (err, results, fields) {
+                      if (err) {
+                        resp.send({ status: "error", message: err });
+                        return;
+                      } else {
+                        connection.query(
+                          "SELECT cid FROM users WHERE uid=?",
+                          [uid],
+                          function (err, results, fields) {
+                            if (err) {
+                              resp.json({ status: "error", message: err });
+                              return;
+                            } else {
+                              resp.json(results);
+                            }
+                          }
+                        );
                       }
                     }
                   );
@@ -168,7 +214,7 @@ app.post('/register_user_other', jsonParser, function (req, res, next) {
     const other = req.body.for
     const type = req.body.type
     connection.execute(
-        'INSERT INTO users (for, cid, fname, lname, primary) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO users (related, cid, fname, lname, primary) VALUES (?, ?, ?, ?, ?)',
         [other, cid, fname, lname, type],
         function(err, results, fields) {
             if (err) {
@@ -285,7 +331,7 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT CONCAT(u.fname,' ',u.lname) as fullname, u.cid, b.booking_service, b.booking_date,b.booking_time 
+              `SELECT CONCAT(u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
               FROM booking_list b
               LEFT JOIN users u ON u.uid = b.uid
               WHERE b.booking_status = 'Y' AND b.uid = ?`,
