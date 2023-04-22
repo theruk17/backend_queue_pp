@@ -10,6 +10,8 @@ const jwt = require('jsonwebtoken')
 const secret = 'queuepakplee'
 require('dotenv').config()
 const axios = require('axios')
+const dayjs = require('dayjs')
+dayjs.locale('th')
 
 const connection = mysql.createConnection(process.env.DATABASE_URL)
 
@@ -461,7 +463,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                   },
                                   {
                                     "type": "text",
-                                    "text": "วันที่ "+date,
+                                    "text": "วันที่ "+dayjs(date).format('DD MMMM YYYY'),
                                     "weight": "bold",
                                     "size": "lg",
                                     "margin": "md",
