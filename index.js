@@ -409,6 +409,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                     resp.json({status: 'error', message: err})
                     return
                 } else {
+                  resp.json("done")
                   let fullname = ''
                   let date = ''
                   let time = ''
@@ -461,7 +462,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                   },
                                   {
                                     "type": "text",
-                                    "text": date,
+                                    "text": "วันที่ "+date,
                                     "weight": "bold",
                                     "size": "lg",
                                     "margin": "md",
@@ -522,7 +523,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                     },
                 })
                 .then(function (response) {
-                  resp.json("done")
+                    console.log(JSON.stringify(response.data));
                     
                 })
                 }
