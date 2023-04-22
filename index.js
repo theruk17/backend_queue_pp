@@ -404,7 +404,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
             connection.execute(
               `UPDATE booking_list SET booking_status = 'N' WHERE id = ?`,
               [id],
-              function(err, results, fields) {
+              async function(err, results, fields) {
                 if (err) {
                     resp.json({status: 'error', message: err})
                     return
@@ -417,14 +417,13 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                   connection.query(
                     `SELECT CONCAT(u.pname,u.fname,' ',u.lname) AS fullname, b.booking_date, b.booking_time, b.booking_service FROM booking_list b LEFT JOIN users u ON u.cid = b.cid WHERE b.id = ?`,
                     [id],
-                    function(err, results, fields) {
+                    function (err, results, fields) {
                       fullname = results[0].fullname
                       date = results[0].booking_date
                       time = results[0].booking_time
                       service = results[0].booking_service
-                    });
-                    
-                    let data = JSON.stringify({
+
+                      let data = JSON.stringify({
                         "to": uid,
                         "messages": [
                           {
@@ -526,6 +525,8 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                   resp.json("done")
                     
                 })
+                    });
+
                 }
             })
             
