@@ -11,6 +11,7 @@ const secret = 'queuepakplee'
 require('dotenv').config()
 const axios = require('axios')
 const dayjs = require('dayjs')
+require('dayjs/locale/th')
 const dayLocaleData = require('dayjs/plugin/localeData');
 dayjs.extend(dayLocaleData);
 dayjs.locale('th')
