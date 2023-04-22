@@ -414,7 +414,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                   let date = "";
                   let time = "";
                   let service = "";
-                  connection.execute(
+                  connection.query(
                     `SELECT CONCAT(u.pname,u.fname,' ',u.lname) AS fullname, b.booking_date, b.booking_time, b.booking_service FROM booking_list b LEFT JOIN users u ON u.cid = b.cid WHERE b.id = ?`,
                     [id],
                     function(err, results, fields) {
