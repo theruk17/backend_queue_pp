@@ -422,7 +422,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                       time = results[0].booking_time
                       service = results[0].booking_service
                     })
-                    resp.json("done")
+                    
                     let data = JSON.stringify({
                         "to": uid,
                         "messages": [
@@ -522,7 +522,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                     },
                 })
                 .then(function (response) {
-                    console.log(JSON.stringify(response.data));
+                  resp.json("done")
                     
                 })
                 }
