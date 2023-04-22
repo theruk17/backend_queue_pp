@@ -503,7 +503,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                       }
                                     ]
                                   }
-                                ],
+                                ]
                                 
                               },
                               "styles": {
