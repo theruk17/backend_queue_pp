@@ -409,6 +409,19 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                     resp.json({status: 'error', message: err})
                     return
                 } else {
+                  let fullname = ''
+                  let date = ''
+                  let time = ''
+                  let service = ''
+                  connection.query(
+                    `SELECT CONCAT(u.pname,u.fname,' ',u.lname) AS fullname, b.booking_date, b.booking_time, b.booking_servivce booking_list b LEFT JOIN users u ON u.cid = b.cid WHERE b.id = ?`,
+                    [id],
+                    function(err, results, fields) {
+                      fullname = results[0].fullname
+                      date = results[0].booking_date
+                      time = results[0].booking_time
+                      service = results[0].booking_service
+                    })
                     resp.json("done")
                     let data = JSON.stringify({
                         "to": uid,
@@ -426,7 +439,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                     "type": "text",
                                     "text": "คุณได้ยกเลิกคิว",
                                     "weight": "bold",
-                                    "color": "#1DB446",
+                                    "color": "#cf0000",
                                     "size": "md",
                                     "align": "center"
                                   },
@@ -434,14 +447,55 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                     "type": "separator",
                                     "margin": "xxl"
                                   },
-                                  
+                                  {
+                                    "type": "text",
+                                    "text": "ชื่อ "+fullname,
+                                    "weight": "bold",
+                                    "size": "lg",
+                                    "margin": "md",
+                                    "align": "center"
+                                  },
+                                  {
+                                    "type": "separator",
+                                    "margin": "xxl"
+                                  },
+                                  {
+                                    "type": "text",
+                                    "text": date,
+                                    "weight": "bold",
+                                    "size": "lg",
+                                    "margin": "md",
+                                    "align": "center"
+                                  },
+                                  {
+                                    "type": "text",
+                                    "text": "เวลา " + time,
+                                    "size": "xl",
+                                    "wrap": true,
+                                    "weight": "bold",
+                                    "align": "center"
+                                  },
+                                  {
+                                    "type": "separator",
+                                    "margin": "xxl"
+                                  },
                                   {
                                     "type": "box",
                                     "layout": "vertical",
                                     "margin": "xxl",
                                     "spacing": "sm",
                                     "contents": [
-                                      
+                                      {
+                                        "type": "text",
+                                        "text": "บริการ " + service,
+                                        "size": "lg",
+                                        "weight": "bold",
+                                        "align": "center"
+                                      },
+                                      {
+                                        "type": "separator",
+                                        "margin": "xxl"
+                                      },
                                       {
                                         "type": "text",
                                         "text": "โรงพยาบาลปากพลี นครนายก",
