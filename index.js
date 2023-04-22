@@ -409,12 +409,12 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                     resp.json({status: 'error', message: err})
                     return
                 } else {
-                  resp.json("done")
-                  let fullname = ''
-                  let date = ''
-                  let time = ''
-                  let service = ''
-                  connection.query(
+                  
+                  let fullname = "";
+                  let date = "";
+                  let time = "";
+                  let service = "";
+                  connection.execute(
                     `SELECT CONCAT(u.pname,u.fname,' ',u.lname) AS fullname, b.booking_date, b.booking_time, b.booking_service FROM booking_list b LEFT JOIN users u ON u.cid = b.cid WHERE b.id = ?`,
                     [id],
                     function(err, results, fields) {
@@ -422,7 +422,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                       date = results[0].booking_date
                       time = results[0].booking_time
                       service = results[0].booking_service
-                    })
+                    });
                     
                     let data = JSON.stringify({
                         "to": uid,
@@ -523,7 +523,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                     },
                 })
                 .then(function (response) {
-                    console.log(JSON.stringify(response.data));
+                  resp.json("done")
                     
                 })
                 }
