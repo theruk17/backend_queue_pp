@@ -7,7 +7,7 @@ const mysql = require('mysql2')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 const jwt = require('jsonwebtoken')
-const secret = 'queuepakplee'
+const secret = 'pakplee'
 require('dotenv').config()
 const axios = require('axios')
 
@@ -18,7 +18,10 @@ app.use(cors())
 
 app.get('/admin_data', jsonParser, function (req, res, next) {
     connection.query(
-        'SELECT b.id, u.pic_url, u.cid, CONCAT(u.pname,u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status FROM booking_list b LEFT JOIN users u ON u.uid=b.uid',
+      `SELECT b.id, u.pic_url, u.cid, CONCAT(u.pname,u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status 
+      FROM booking_list b 
+      LEFT JOIN users u ON u.cid=b.cid
+      ORDER BY u.booking_date, u.booking_time ASC`,
         
         function(err, results, fields) {
             if (err) {
@@ -289,7 +292,7 @@ app.post('/login', jsonParser, function (req, res, next) {
             }
             bcrypt.compare(req.body.password, users[0].password, function(err, isLogin) {
                 if (isLogin) {
-                    var token = jwt.sign({ username: users[0].username}, secret, { expiresIn: '1h'})
+                    var token = jwt.sign({ username: users[0].username, name: users[0].fname+ ' ' + users[0].lname}, secret, { expiresIn: '1h'})
                     res.json({status: 'ok', message: 'success', token})
                     
                 } else {
@@ -302,9 +305,9 @@ app.post('/login', jsonParser, function (req, res, next) {
     )
 })
 
-app.post('/auth', jsonParser, function (req, res, next) {
+app.post('/authen', jsonParser, function (req, res, next) {
     try {
-        const token = req.body.headers.Authorization.split(' ')[1]
+        const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, secret)
         res.json({status: 'ok', decoded})
     } catch(err) {
