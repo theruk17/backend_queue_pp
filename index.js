@@ -26,7 +26,7 @@ app.get('/admin_data', jsonParser, function (req, res, next) {
       `SELECT b.id, u.pic_url, u.cid, CONCAT(u.pname,u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status 
       FROM booking_list b 
       LEFT JOIN users u ON u.cid=b.cid
-      ORDER BY u.booking_date, u.booking_time ASC`,
+      ORDER BY b.booking_date, b.booking_time ASC`,
         
         function(err, results, fields) {
             if (err) {
@@ -310,7 +310,7 @@ app.post('/login', jsonParser, function (req, res, next) {
     )
 })
 
-app.post('/authen', jsonParser, function (req, res, next) {
+app.get('/authen', jsonParser, function (req, res, next) {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, secret)
