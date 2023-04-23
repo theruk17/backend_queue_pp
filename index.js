@@ -10,6 +10,11 @@ const jwt = require('jsonwebtoken')
 const secret = 'pakplee'
 require('dotenv').config()
 const axios = require('axios')
+const dayjs = require('dayjs')
+require('dayjs/locale/th')
+const dayLocaleData = require('dayjs/plugin/localeData');
+dayjs.extend(dayLocaleData);
+dayjs.locale('th')
 
 const connection = mysql.createConnection(process.env.DATABASE_URL)
 
@@ -407,13 +412,26 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
             connection.execute(
               `UPDATE booking_list SET booking_status = 'N' WHERE id = ?`,
               [id],
-              function(err, results, fields) {
+              async function(err, results, fields) {
                 if (err) {
                     resp.json({status: 'error', message: err})
                     return
                 } else {
-                    resp.json("done")
-                    let data = JSON.stringify({
+                  
+                  let fullname = "";
+                  let date = "";
+                  let time = "";
+                  let service = "";
+                  connection.query(
+                    `SELECT CONCAT(u.pname,u.fname,' ',u.lname) AS fullname, b.booking_date, b.booking_time, b.booking_service FROM booking_list b LEFT JOIN users u ON u.cid = b.cid WHERE b.id = ?`,
+                    [id],
+                    function (err, results, fields) {
+                      fullname = results[0].fullname
+                      date = results[0].booking_date
+                      time = results[0].booking_time
+                      service = results[0].booking_service
+
+                      let data = JSON.stringify({
                         "to": uid,
                         "messages": [
                           {
@@ -429,7 +447,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                     "type": "text",
                                     "text": "คุณได้ยกเลิกคิว",
                                     "weight": "bold",
-                                    "color": "#1DB446",
+                                    "color": "#cf0000",
                                     "size": "md",
                                     "align": "center"
                                   },
@@ -437,14 +455,55 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                     "type": "separator",
                                     "margin": "xxl"
                                   },
-                                  
+                                  {
+                                    "type": "text",
+                                    "text": "ชื่อ "+fullname,
+                                    "weight": "bold",
+                                    "size": "lg",
+                                    "margin": "md",
+                                    "align": "center"
+                                  },
+                                  {
+                                    "type": "separator",
+                                    "margin": "xxl"
+                                  },
+                                  {
+                                    "type": "text",
+                                    "text": "วัน "+dayjs(date).format('dddd ที่ D MMMM YYYY'),
+                                    "weight": "bold",
+                                    "size": "lg",
+                                    "margin": "md",
+                                    "align": "center"
+                                  },
+                                  {
+                                    "type": "text",
+                                    "text": "เวลา " + time,
+                                    "size": "xl",
+                                    "wrap": true,
+                                    "weight": "bold",
+                                    "align": "center"
+                                  },
+                                  {
+                                    "type": "separator",
+                                    "margin": "xxl"
+                                  },
                                   {
                                     "type": "box",
                                     "layout": "vertical",
                                     "margin": "xxl",
                                     "spacing": "sm",
                                     "contents": [
-                                      
+                                      {
+                                        "type": "text",
+                                        "text": "บริการ " + service,
+                                        "size": "lg",
+                                        "weight": "bold",
+                                        "align": "center"
+                                      },
+                                      {
+                                        "type": "separator",
+                                        "margin": "xxl"
+                                      },
                                       {
                                         "type": "text",
                                         "text": "โรงพยาบาลปากพลี นครนายก",
@@ -452,7 +511,7 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                                       }
                                     ]
                                   }
-                                ],
+                                ]
                                 
                               },
                               "styles": {
@@ -471,9 +530,11 @@ app.put('/cancel_queue', jsonParser, function (req, resp, next) {
                     },
                 })
                 .then(function (response) {
-                    console.log(JSON.stringify(response.data));
+                  resp.json("done")
                     
                 })
+                    });
+
                 }
             })
             
