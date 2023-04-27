@@ -242,17 +242,27 @@ app.post('/register_user_other', jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              'INSERT INTO users (uid, related, cid, pname, fname, lname, main) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              [uid, other, cid, pname, fname, lname, type],
-              function(err, results, fields) {
-                if (err) {
-                    resp.json({status: 'error', message: err})
-                    return
-                } else {
-                    resp.json('done')
-                }  
+              "SELECT cid FROM booking_list WHERE cid = ? AND booking_status = 'Y'"
+            ),
+            function(err, results) {
+              if(results[0].cid > 0) {
+                resp.json('เลขบัตรนี้ถูกจองคิวไปแล้ว!')
+              } else {
+                connection.execute(
+                  'INSERT INTO users (uid, related, cid, pname, fname, lname, main) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                  [uid, other, cid, pname, fname, lname, type],
+                  function(err, results, fields) {
+                    if (err) {
+                        resp.json({status: 'error', message: err})
+                        return
+                    } else {
+                        resp.json('done')
+                    }  
+                  }
+                );
               }
-            );
+            }
+            
           });
       }
     });
