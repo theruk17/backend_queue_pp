@@ -242,8 +242,8 @@ app.post('/register_user_other', jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              "SELECT cid FROM booking_list WHERE cid = ? AND booking_status = 'Y'"
-            ),
+              "SELECT cid FROM booking_list WHERE cid = ? AND booking_status = 'Y'",
+              [cid],
             function(err, results) {
               if(results[0].cid > 0) {
                 resp.json('เลขบัตรนี้ถูกจองคิวไปแล้ว!')
@@ -262,7 +262,7 @@ app.post('/register_user_other', jsonParser, function (req, resp, next) {
                 );
               }
             }
-            
+            )
           });
       }
     });
