@@ -721,7 +721,9 @@ app.post('/line_liff_queue', jsonParser, function (req, resp, next) {
             const uid = res.data.userId;
             let fullname = "";
             connection.query(
-              "SELECT * FROM booking_list WHERE uid = ? AND booking_status = 'Y'",
+              `SELECT CONCAT(u.pname,u.fname,' ',u.lname) AS fullname,b.booking_date,b.booking_time, b.booking_service FROM booking_list b 
+              LEFT JOIN users u ON u.cid = b.cid
+              WHERE b.uid = ? AND b.booking_status = 'Y'`,
               [uid],
               function (err, results, fields) {
                 if (err) {
@@ -754,14 +756,14 @@ app.post('/line_liff_queue', jsonParser, function (req, resp, next) {
                         },
                         {
                           type: "text",
-                          text: "28 เมษายน 2023",
+                          text: dayjs(item.booking_date).format('D MMMM YYYY'),
                           size: "sm",
                           weight: "bold",
                           align: "center",
                         },
                         {
                           type: "text",
-                          text: "10:30 น.",
+                          text: dayjs(item.booking_time).format('HH:mm')+" น.",
                           size: "sm",
                           weight: "bold",
                           align: "center",
