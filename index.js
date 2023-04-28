@@ -763,7 +763,7 @@ app.post('/line_liff_queue', jsonParser, function (req, resp, next) {
                         },
                         {
                           type: "text",
-                          text: dayjs(item.booking_time).format('HH:mm:ss')+" น.",
+                          text: item.booking_time+" น.",
                           size: "sm",
                           weight: "bold",
                           align: "center",
