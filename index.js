@@ -737,7 +737,7 @@ app.post('/line_liff_queue', jsonParser, function (req, resp, next) {
                       contents: [
                         {
                           type: "text",
-                          text: item.fullname,
+                          text: "test",
                           size: "sm",
                           weight: "bold",
                           align: "center",
@@ -788,7 +788,7 @@ app.post('/line_liff_queue', jsonParser, function (req, resp, next) {
                         },
                         {
                           type: "text",
-                          text: "ขูดหินปูน",
+                          text: item.booking_service,
                           weight: "bold",
                           size: "sm",
                           wrap: true,
