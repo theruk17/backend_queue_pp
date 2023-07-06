@@ -613,7 +613,7 @@ app.post("/submit", jsonParser, function (req, resp, next) {
                                 size: "lg",
                               },
                             ],
-                            backgroundColor: "#FF2C2C",
+                            backgroundColor: "#00B01D",
                             paddingAll: "md",
                           },
                           body: {
