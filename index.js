@@ -705,6 +705,138 @@ app.post("/submit", jsonParser, function (req, resp, next) {
     });
 });
 
+app.post("/line_liff_queue", jsonParser, function (req, resp, next) {
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            let fullname = "";
+            connection.query(
+              `SELECT CONCAT(u.pname,u.fname,' ',u.lname) AS fullname,b.booking_date,b.booking_time, b.booking_service FROM booking_list b 
+              LEFT JOIN users u ON u.cid = b.cid
+              WHERE b.uid = ? AND b.booking_status = 'Y'`,
+              [uid],
+              function (err, results, fields) {
+                if (err) {
+                  resp.json({ status: "error", message: err });
+                  return;
+                } else {
+                  const bubbles = results.map((item) => ({
+                    type: "bubble",
+                    size: "micro",
+                    hero: {
+                      type: "box",
+                      layout: "vertical",
+                      contents: [
+                        {
+                          type: "text",
+                          text: item.fullname,
+                          size: "sm",
+                          weight: "bold",
+                          align: "center",
+                        },
+                        {
+                          type: "separator",
+                        },
+                        {
+                          type: "text",
+                          text: "จองคิวเมื่อ",
+                          size: "xs",
+                          align: "center",
+                          color: "#03C988",
+                        },
+                        {
+                          type: "text",
+                          text: dayjs(item.booking_date).format("D MMMM YYYY"),
+                          size: "sm",
+                          weight: "bold",
+                          align: "center",
+                        },
+                        {
+                          type: "text",
+                          text: item.booking_time + " น.",
+                          size: "sm",
+                          weight: "bold",
+                          align: "center",
+                        },
+                        {
+                          type: "separator",
+                        },
+                      ],
+                      spacing: "sm",
+                      margin: "none",
+                      paddingTop: "lg",
+                    },
+                    body: {
+                      type: "box",
+                      layout: "vertical",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "บริการ",
+                          size: "xs",
+                          wrap: true,
+                          align: "center",
+                          color: "#03C988",
+                        },
+                        {
+                          type: "text",
+                          text: item.booking_service,
+                          weight: "bold",
+                          size: "sm",
+                          wrap: true,
+                          align: "center",
+                        },
+                      ],
+                      spacing: "sm",
+                      paddingAll: "13px",
+                    },
+                  }));
+
+                  let data = JSON.stringify({
+                    to: uid,
+                    messages: [
+                      {
+                        type: "flex",
+                        altText: "รายละเอียดการจองคิว",
+                        contents: {
+                          type: "carousel",
+                          contents: bubbles,
+                        },
+                      },
+                    ],
+                  });
+                  axios
+                    .post("https://api.line.me/v2/bot/message/push", data, {
+                      headers: {
+                        Authorization: "Bearer " + process.env.KEY_API,
+                        "Content-Type": "application/json",
+                      },
+                    })
+                    .then(function (response) {
+                      resp.json("done");
+                    })
+                    .catch(function (error) {
+                      console.log(error);
+                    });
+                }
+              }
+            );
+          });
+      }
+    });
+});
+
 app.listen(3333, function () {
   console.log("CORS-enabled web server listening on port 3333");
 });
