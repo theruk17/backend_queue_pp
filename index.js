@@ -38,6 +38,19 @@ app.get("/admin_data", jsonParser, function (req, res, next) {
   );
 });
 
+app.put("/updatestatus/:id", jsonParser, (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  connection.query(
+    `UPDATE booking_list SET booking_status = ? WHERE id = ?`,
+    [status, id],
+    (err) => {
+      if (err) throw err;
+      res.send("Status updated successsfully");
+    }
+  );
+});
+
 app.post("/data", jsonParser, function (req, resp, next) {
   const cid = req.body.cid;
   connection.execute(
