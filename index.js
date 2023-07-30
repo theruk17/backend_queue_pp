@@ -369,10 +369,44 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time 
+              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, b.booking_service, b.booking_date,b.booking_time 
               FROM booking_list b
               LEFT JOIN users u ON u.cid = b.cid
               WHERE b.booking_status = 'Y' AND b.uid = ?`,
+              [uid],
+              function (err, results, fields) {
+                if (err) {
+                  resp.json({ status: "error", message: err });
+                  return;
+                }
+                resp.json(results);
+              }
+            );
+          });
+      }
+    });
+});
+
+app.post("/databooking", jsonParser, function (req, resp, next) {
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            connection.execute(
+              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time,b.booking_status  
+              FROM booking_list b
+              LEFT JOIN users u ON u.cid = b.cid
+              WHERE b.uid = ? ORDER BY b.booking_date DESC`,
               [uid],
               function (err, results, fields) {
                 if (err) {
