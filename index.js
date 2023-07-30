@@ -25,7 +25,7 @@ app.get("/admin_data", jsonParser, function (req, res, next) {
     `SELECT b.id, u.pic_url, u.cid, CONCAT(u.pname,u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status 
       FROM booking_list b 
       LEFT JOIN users u ON u.cid=b.cid
-      ORDER BY b.booking_date, b.booking_time ASC`,
+      ORDER BY b.id DESC`,
 
     function (err, results, fields) {
       if (err) {
@@ -419,7 +419,7 @@ app.post("/databooking", jsonParser, function (req, resp, next) {
               `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time,b.booking_status  
               FROM booking_list b
               LEFT JOIN users u ON u.cid = b.cid
-              WHERE b.uid = ? ORDER BY b.booking_date DESC`,
+              WHERE b.uid = ? ORDER BY b.id DESC`,
               [uid],
               function (err, results, fields) {
                 if (err) {
