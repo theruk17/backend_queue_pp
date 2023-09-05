@@ -428,7 +428,7 @@ app.get("/holiday", jsonParser, function (req, res, next) {
 
 app.get("/checkdate", jsonParser, function (req, res, next) {
   connection.query(
-    "SELECT booking_date FROM booking_list WHERE (booking_status = 'Y' || booking_status = 'S') GROUP BY booking_date HAVING COUNT(booking_date) > 3",
+    "SELECT booking_date FROM booking_list WHERE (booking_status = 'Y' OR booking_status = 'S') GROUP BY booking_date HAVING COUNT(booking_date) > 3",
     function (err, results, fields) {
       if (err) {
         res.json({ status: "error", message: err });
@@ -576,7 +576,7 @@ app.post("/databooking", jsonParser, function (req, resp, next) {
 
 app.post("/checktime", jsonParser, function (req, res, next) {
   connection.query(
-    "SELECT booking_time FROM booking_list WHERE booking_status='Y' AND booking_date=?",
+    "SELECT booking_time FROM booking_list WHERE booking_status='Y' OR booking_status='S' AND booking_date=?",
     [req.body.date],
     function (err, results, fields) {
       if (err) {
