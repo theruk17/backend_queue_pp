@@ -85,7 +85,7 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
             let pic = res.data.pictureUrl;
             if (pic == null || pic == "") {
               pic =
-                "https://res.cloudinary.com/drllzqbk0/image/upload/v1682071258/people_h1vjj6.jpg";
+                "https://firebasestorage.googleapis.com/v0/b/test-ae239.appspot.com/o/noimage.png?alt=media&token=80c1b35e-5c7b-42dc-9cf5-8e296ed86253";
             }
             connection.query(
               "SELECT uid, pic_url FROM users WHERE uid= ? and main = 'Y'",
@@ -366,6 +366,39 @@ app.get("/checkdate", jsonParser, function (req, res, next) {
   );
 });
 
+app.post("/getdatauser", jsonParser, function (req, resp, next) {
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            connection.execute(
+              `SELECT cid,pname,fname,lname,pic_url,related 
+              FROM users
+              WHERE main = 'N' AND uid =  ?`,
+              [uid],
+              function (err, results, fields) {
+                if (err) {
+                  resp.json({ status: "error", message: err });
+                  return;
+                }
+                resp.json(results);
+              }
+            );
+          });
+      }
+    });
+});
+
 app.post("/checkbooking", jsonParser, function (req, resp, next) {
   const c_id = "1660743780";
   const actoken = req.body.actoken;
@@ -387,6 +420,40 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
               LEFT JOIN users u ON u.cid = b.cid
               WHERE b.booking_status = 'Y' AND b.uid = ?`,
               [uid],
+              function (err, results, fields) {
+                if (err) {
+                  resp.json({ status: "error", message: err });
+                  return;
+                }
+                resp.json(results);
+              }
+            );
+          });
+      }
+    });
+});
+
+app.post("/checkbookingother", jsonParser, function (req, resp, next) {
+  const c_id = "1660743780";
+  const actoken = req.body.actoken;
+  const cid = req.body.cid;
+  const token = actoken.replace('"', "").replace('"', "");
+
+  axios
+    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
+    .then((res) => {
+      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+        axios
+          .get(`https://api.line.me/v2/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const uid = res.data.userId;
+            connection.execute(
+              `SELECT cid 
+              FROM booking_list 
+              WHERE booking_status = 'Y' AND uid = ? AND cid = ?`,
+              [uid, cid],
               function (err, results, fields) {
                 if (err) {
                   resp.json({ status: "error", message: err });
