@@ -166,6 +166,17 @@ app.post("/register_line", jsonParser, function (req, resp, next) {
     });
 });
 
+app.post("/edituser", jsonParser, (req, res) => {
+  const id = req.body.id;
+  connection.query(
+    `SELECT * FROM users WHERE id = ?`,
+    [id],
+    function (err, results, fields) {
+      res.send(results);
+    }
+  );
+});
+
 app.post("/check_cid", jsonParser, function (req, resp, next) {
   const c_id = "1660743780";
   const actoken = req.body.actoken;
@@ -247,31 +258,90 @@ app.post("/register_user_other", jsonParser, function (req, resp, next) {
   const actoken = req.body.actoken;
   const token = actoken.replace('"', "").replace('"', "");
 
-  axios
-    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
-    .then((res) => {
-      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+  connection.execute(
+    "SELECT cid FROM users WHERE cid = ?",
+    [cid],
+    function (err, results, fields) {
+      if (err) {
+        resp.json({ status: "error", message: err });
+        return;
+      }
+      if (results.length > 0) {
+        resp.json({
+          status: "error",
+          message: "เลขบัตรประชาชนนี้ได้ลงทะเบียนไปแล้ว",
+        });
+      } else {
         axios
-          .get(`https://api.line.me/v2/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
+          .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
           .then((res) => {
-            const uid = res.data.userId;
-            connection.execute(
-              "INSERT INTO users (uid, related, cid, pname, fname, lname, main) VALUES (?, ?, ?, ?, ?, ?, ?)",
-              [uid, other, cid, pname, fname, lname, type],
-              function (err, results, fields) {
-                if (err) {
-                  resp.json({ status: "error", message: err });
-                  return;
-                } else {
-                  resp.json("done");
-                }
-              }
-            );
+            if (res.data.client_id === c_id && res.data.expires_in > 0) {
+              axios
+                .get(`https://api.line.me/v2/profile`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                })
+                .then((res) => {
+                  const uid = res.data.userId;
+                  connection.execute(
+                    "INSERT INTO users (uid, related, cid, pname, fname, lname, main) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [uid, other, cid, pname, fname, lname, type],
+                    function (err, results, fields) {
+                      if (err) {
+                        resp.json({ status: "error", message: err });
+                        return;
+                      } else {
+                        resp.json("done");
+                      }
+                    }
+                  );
+                });
+            }
           });
       }
-    });
+    }
+  );
+});
+
+app.put("/update_register_user_other", jsonParser, function (req, resp, next) {
+  const id = req.body.id;
+  const cid = req.body.idcard;
+  const pname = req.body.pname;
+  const fname = req.body.fname;
+  const lname = req.body.lname;
+  const other = req.body.for;
+
+  connection.execute(
+    "SELECT cid FROM users WHERE cid = ?",
+    [cid],
+    function (err, results, fields) {
+      if (err) {
+        resp.json({ status: "error", message: err });
+        return;
+      }
+      if (results.length > 0) {
+        resp.json({
+          status: "error",
+          message: "เลขบัตรประชาชนนี้ได้ลงทะเบียนไปแล้ว",
+        });
+      } else {
+        connection.execute(
+          `UPDATE users SET cid = ?, pname = ?, fname = ?, lname = ?, related = ?) 
+          WHERE id = ?`,
+          [cid, pname, fname, lname, other, id],
+          function (err, results, fields) {
+            if (err) {
+              resp.status(500).json({ status: 500, message: err });
+            } else {
+              resp.status(200).send({
+                status: 200,
+                message: "Successfully Updated.",
+              });
+            }
+          }
+        );
+      }
+    }
+  );
 });
 
 app.post("/register", jsonParser, function (req, res, next) {
@@ -382,7 +452,7 @@ app.post("/getdatauser", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT cid,pname,fname,lname,pic_url,related 
+              `SELECT * 
               FROM users
               WHERE main = 'N' AND uid =  ?`,
               [uid],
