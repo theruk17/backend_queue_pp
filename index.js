@@ -22,10 +22,12 @@ app.use(cors());
 
 app.get("/admin_data", jsonParser, function (req, res, next) {
   connection.query(
-    `SELECT b.id, u.pic_url, u.cid, CONCAT(u.pname,u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status 
-      FROM booking_list b 
-      LEFT JOIN users u ON u.cid=b.cid
-      ORDER BY b.id DESC`,
+    `SELECT b.id, u.pic_url, u.cid, CONCAT(u.pname,u.fname," ",u.lname) as fullname, b.booking_service, b.booking_date, b.booking_time, b.booking_status, b.datetime_create, CONCAT(u1.pname,u1.fname," ",u1.lname) AS fullnamebooking, b.booking_message_cancel  
+    FROM booking_list b 
+    LEFT JOIN users u ON u.cid=b.cid
+    LEFT JOIN users u1 ON u1.uid=b.uid
+    WHERE u1.main = 'Y'
+    ORDER BY b.id DESC`,
 
     function (err, results, fields) {
       if (err) {
@@ -38,12 +40,13 @@ app.get("/admin_data", jsonParser, function (req, res, next) {
   );
 });
 
-app.put("/updatestatus/:id", jsonParser, (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+app.put("/updatestatus", jsonParser, (req, res) => {
+  const id = req.body.id;
+  const status = req.body.status;
+  const messagecancel = req.body.messagecancel;
   connection.query(
-    `UPDATE booking_list SET booking_status = ? WHERE id = ?`,
-    [status, id],
+    `UPDATE booking_list SET booking_status = ?, booking_message_cancel = ? WHERE id = ?`,
+    [status, messagecancel, id],
     (err) => {
       if (err) throw err;
       res.send("Status updated successsfully");
@@ -311,8 +314,8 @@ app.put("/update_register_user_other", jsonParser, function (req, resp, next) {
   const other = req.body.for;
 
   connection.execute(
-    "SELECT cid FROM users WHERE cid = ?",
-    [cid],
+    "SELECT cid FROM users WHERE cid = ? AND id != ?",
+    [cid, id],
     function (err, results, fields) {
       if (err) {
         resp.json({ status: "error", message: err });
@@ -325,12 +328,12 @@ app.put("/update_register_user_other", jsonParser, function (req, resp, next) {
         });
       } else {
         connection.execute(
-          `UPDATE users SET cid = ?, pname = ?, fname = ?, lname = ?, related = ?) 
+          `UPDATE users SET cid = ?, pname = ?, fname = ?, lname = ?, related = ?  
           WHERE id = ?`,
           [cid, pname, fname, lname, other, id],
           function (err, results, fields) {
             if (err) {
-              resp.status(500).json({ status: 500, message: err });
+              resp.json({ message: err });
             } else {
               resp.status(200).send({
                 status: 200,
@@ -425,7 +428,7 @@ app.get("/holiday", jsonParser, function (req, res, next) {
 
 app.get("/checkdate", jsonParser, function (req, res, next) {
   connection.query(
-    "SELECT booking_date FROM booking_list WHERE booking_status = 'Y' GROUP BY booking_date HAVING COUNT(booking_date) > 3",
+    "SELECT booking_date FROM booking_list WHERE (booking_status = 'Y' || booking_status = 'S') GROUP BY booking_date HAVING COUNT(booking_date) > 3",
     function (err, results, fields) {
       if (err) {
         res.json({ status: "error", message: err });
@@ -485,10 +488,10 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, b.booking_service, b.booking_date,b.booking_time 
+              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, b.booking_service, b.booking_date,b.booking_time,b.booking_status 
               FROM booking_list b
               LEFT JOIN users u ON u.cid = b.cid
-              WHERE b.booking_status = 'Y' AND b.uid = ?`,
+              WHERE (b.booking_status = 'Y' || b.booking_status = 'S') AND b.uid = ?`,
               [uid],
               function (err, results, fields) {
                 if (err) {
