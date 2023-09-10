@@ -491,7 +491,7 @@ app.post("/checkbooking", jsonParser, function (req, resp, next) {
               `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, b.booking_service, b.booking_date,b.booking_time,b.booking_status 
               FROM booking_list b
               LEFT JOIN users u ON u.cid = b.cid
-              WHERE (b.booking_status = 'Y' || b.booking_status = 'S') AND b.uid = ?`,
+              WHERE b.booking_status = 'Y' AND b.uid = ?`,
               [uid],
               function (err, results, fields) {
                 if (err) {
