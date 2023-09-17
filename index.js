@@ -16,6 +16,8 @@ const dayLocaleData = require("dayjs/plugin/localeData");
 dayjs.extend(dayLocaleData);
 dayjs.locale("th");
 
+const datenow = dayjs().format("YYYY-MM-DD HH:mm:ss");
+
 const connection = mysql.createConnection(process.env.DATABASE_URL);
 
 app.use(cors());
@@ -789,8 +791,8 @@ app.post("/submit", jsonParser, function (req, resp, next) {
             );
 
             connection.query(
-              "INSERT INTO booking_list (uid, cid, booking_date, booking_time, booking_service) VALUES (?, ?, ?, ?, ?)",
-              [uid, cid, date, time, service],
+              "INSERT INTO booking_list (uid, cid, booking_date, booking_time, booking_service,datetime_create) VALUES (?, ?, ?, ?, ?, ?)",
+              [uid, cid, date, time, service, datenow],
               function (err, results) {
                 if (err) {
                   resp.json({ status: "error", message: err });
