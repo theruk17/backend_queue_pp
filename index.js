@@ -771,144 +771,159 @@ app.post("/submit", jsonParser, function (req, resp, next) {
   const actoken = req.body.actoken;
   const token = actoken.replace('"', "").replace('"', "");
 
-  axios
-    .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
-    .then((res) => {
-      if (res.data.client_id === c_id && res.data.expires_in > 0) {
+  connection.query(
+    `SELECT id FROM booking_list WHERE booking_date = ? AND booking_time = ? AND booking_status = 'Y'`,
+    [date, time],
+    function (err, results) {
+      if (results.length > 0) {
+        resp.json("error");
+        return;
+      } else {
         axios
-          .get(`https://api.line.me/v2/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
+          .get(`https://api.line.me/oauth2/v2.1/verify?access_token=${token}`)
           .then((res) => {
-            const uid = res.data.userId;
-            let fullname = "";
-            connection.query(
-              "SELECT CONCAT(pname,fname,' ',lname) as fullname FROM users WHERE cid = ?",
-              [cid],
-              function (err, results) {
-                fullname = results[0].fullname;
-              }
-            );
+            if (res.data.client_id === c_id && res.data.expires_in > 0) {
+              axios
+                .get(`https://api.line.me/v2/profile`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                })
+                .then((res) => {
+                  const uid = res.data.userId;
+                  let fullname = "";
+                  connection.query(
+                    "SELECT CONCAT(pname,fname,' ',lname) as fullname FROM users WHERE cid = ?",
+                    [cid],
+                    function (err, results) {
+                      fullname = results[0].fullname;
+                    }
+                  );
 
-            connection.query(
-              "INSERT INTO booking_list (uid, cid, booking_date, booking_time, booking_service,datetime_create) VALUES (?, ?, ?, ?, ?, ?)",
-              [uid, cid, date, time, service, datenow],
-              function (err, results) {
-                if (err) {
-                  resp.json({ status: "error", message: err });
-                  return;
-                } else {
-                  let data = JSON.stringify({
-                    to: uid,
-                    messages: [
-                      {
-                        type: "flex",
-                        altText: "จองคิวสำเร็จ",
-                        contents: {
-                          type: "bubble",
-                          header: {
-                            type: "box",
-                            layout: "vertical",
-                            contents: [
-                              {
-                                type: "text",
-                                text: "คุณได้จองคิว",
-                                align: "center",
-                                weight: "bold",
-                                color: "#ffffff",
-                                size: "lg",
+                  connection.query(
+                    "INSERT INTO booking_list (uid, cid, booking_date, booking_time, booking_service,datetime_create) VALUES (?, ?, ?, ?, ?, ?)",
+                    [uid, cid, date, time, service, datenow],
+                    function (err, results) {
+                      if (err) {
+                        resp.json({ status: "error", message: err });
+                        return;
+                      } else {
+                        let data = JSON.stringify({
+                          to: uid,
+                          messages: [
+                            {
+                              type: "flex",
+                              altText: "จองคิวสำเร็จ",
+                              contents: {
+                                type: "bubble",
+                                header: {
+                                  type: "box",
+                                  layout: "vertical",
+                                  contents: [
+                                    {
+                                      type: "text",
+                                      text: "คุณได้จองคิว",
+                                      align: "center",
+                                      weight: "bold",
+                                      color: "#ffffff",
+                                      size: "lg",
+                                    },
+                                  ],
+                                  backgroundColor: "#00B01D",
+                                  paddingAll: "md",
+                                },
+                                body: {
+                                  type: "box",
+                                  layout: "vertical",
+                                  contents: [
+                                    {
+                                      type: "text",
+                                      text: "ชื่อ " + fullname,
+                                      weight: "bold",
+                                      size: "lg",
+                                      margin: "md",
+                                      align: "center",
+                                    },
+                                    {
+                                      type: "separator",
+                                      margin: "xxl",
+                                    },
+                                    {
+                                      type: "text",
+                                      text: dateTH,
+                                      weight: "bold",
+                                      size: "lg",
+                                      margin: "md",
+                                      align: "center",
+                                    },
+                                    {
+                                      type: "text",
+                                      text: "เวลา " + time,
+                                      size: "xl",
+                                      wrap: true,
+                                      weight: "bold",
+                                      align: "center",
+                                    },
+                                    {
+                                      type: "separator",
+                                      margin: "xxl",
+                                    },
+                                    {
+                                      type: "text",
+                                      text: "บริการ " + service,
+                                      size: "lg",
+                                      weight: "bold",
+                                      align: "center",
+                                    },
+                                  ],
+                                },
+                                footer: {
+                                  type: "box",
+                                  layout: "vertical",
+                                  contents: [
+                                    {
+                                      type: "text",
+                                      text: "โรงพยาบาลปากพลี นครนายก",
+                                      align: "center",
+                                      color: "#ffffff",
+                                    },
+                                  ],
+                                  backgroundColor: "#A22CFF",
+                                  paddingAll: "sm",
+                                },
+                                styles: {
+                                  footer: {
+                                    separator: true,
+                                  },
+                                },
                               },
-                            ],
-                            backgroundColor: "#00B01D",
-                            paddingAll: "md",
-                          },
-                          body: {
-                            type: "box",
-                            layout: "vertical",
-                            contents: [
-                              {
-                                type: "text",
-                                text: "ชื่อ " + fullname,
-                                weight: "bold",
-                                size: "lg",
-                                margin: "md",
-                                align: "center",
-                              },
-                              {
-                                type: "separator",
-                                margin: "xxl",
-                              },
-                              {
-                                type: "text",
-                                text: dateTH,
-                                weight: "bold",
-                                size: "lg",
-                                margin: "md",
-                                align: "center",
-                              },
-                              {
-                                type: "text",
-                                text: "เวลา " + time,
-                                size: "xl",
-                                wrap: true,
-                                weight: "bold",
-                                align: "center",
-                              },
-                              {
-                                type: "separator",
-                                margin: "xxl",
-                              },
-                              {
-                                type: "text",
-                                text: "บริการ " + service,
-                                size: "lg",
-                                weight: "bold",
-                                align: "center",
-                              },
-                            ],
-                          },
-                          footer: {
-                            type: "box",
-                            layout: "vertical",
-                            contents: [
-                              {
-                                type: "text",
-                                text: "โรงพยาบาลปากพลี นครนายก",
-                                align: "center",
-                                color: "#ffffff",
-                              },
-                            ],
-                            backgroundColor: "#A22CFF",
-                            paddingAll: "sm",
-                          },
-                          styles: {
-                            footer: {
-                              separator: true,
                             },
-                          },
-                        },
-                      },
-                    ],
-                  });
-                  axios
-                    .post("https://api.line.me/v2/bot/message/push", data, {
-                      headers: {
-                        Authorization: "Bearer " + process.env.KEY_API,
-                        "Content-Type": "application/json",
-                      },
-                    })
-                    .then(function (response) {
-                      resp.json("done");
-                    })
-                    .catch(function (error) {
-                      console.log(error);
-                    });
-                }
-              }
-            );
+                          ],
+                        });
+                        axios
+                          .post(
+                            "https://api.line.me/v2/bot/message/push",
+                            data,
+                            {
+                              headers: {
+                                Authorization: "Bearer " + process.env.KEY_API,
+                                "Content-Type": "application/json",
+                              },
+                            }
+                          )
+                          .then(function (response) {
+                            resp.json("done");
+                          })
+                          .catch(function (error) {
+                            console.log(error);
+                          });
+                      }
+                    }
+                  );
+                });
+            }
           });
       }
-    });
+    }
+  );
 });
 
 app.post("/line_liff_queue", jsonParser, function (req, resp, next) {
