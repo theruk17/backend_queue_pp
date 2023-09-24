@@ -46,12 +46,162 @@ app.put("/updatestatus", jsonParser, (req, res) => {
   const id = req.body.id;
   const status = req.body.status;
   const messagecancel = req.body.messagecancel;
+  let color = "";
+  let title = "";
+  if (status === "S") {
+    title = "แจ้งยืนยันการมารับบริการจริง";
+    color = "#1677ff";
+  } else {
+    title = "คิวของคุณถูกยกเลิก!";
+    color = "#fa8c16";
+  }
   connection.query(
     `UPDATE booking_list SET booking_status = ?, booking_message_cancel = ? WHERE id = ?`,
     [status, messagecancel, id],
     (err) => {
-      if (err) throw err;
-      res.send("Status updated successsfully");
+      if (err) {
+        res.json({ status: "error", message: err });
+      } else {
+        let fullname = "";
+        let date = "";
+        let time = "";
+        let service = "";
+        connection.query(
+          `SELECT b.uid,CONCAT(u.pname,u.fname,' ',u.lname) AS fullname, b.booking_date, b.booking_time, b.booking_service FROM booking_list b LEFT JOIN users u ON u.cid = b.cid WHERE b.id = ?`,
+          [id],
+          function (err, results, fields) {
+            let uid = results[0].uid;
+            fullname = results[0].fullname;
+            date = results[0].booking_date;
+            time = results[0].booking_time;
+            service = results[0].booking_service;
+
+            let data = JSON.stringify({
+              to: uid,
+              messages: [
+                {
+                  type: "flex",
+                  altText: title,
+                  contents: {
+                    type: "bubble",
+                    header: {
+                      type: "box",
+                      layout: "vertical",
+                      contents:
+                        status === "S"
+                          ? [
+                              {
+                                type: "text",
+                                text: title,
+                                align: "center",
+                                weight: "bold",
+                                color: "#ffffff",
+                                size: "lg",
+                              },
+                            ]
+                          : [
+                              {
+                                type: "text",
+                                text: title,
+                                align: "center",
+                                weight: "bold",
+                                color: "#ffffff",
+                                size: "lg",
+                              },
+                              {
+                                type: "text",
+                                text: "เนื่องจาก: " + messagecancel,
+                                align: "center",
+                                weight: "bold",
+                                color: "#ffffff",
+                                size: "md",
+                              },
+                            ],
+                      backgroundColor: color,
+                      paddingAll: "md",
+                    },
+                    body: {
+                      type: "box",
+                      layout: "vertical",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "ชื่อ " + fullname,
+                          weight: "bold",
+                          size: "lg",
+                          margin: "md",
+                          align: "center",
+                        },
+                        {
+                          type: "separator",
+                          margin: "xxl",
+                        },
+                        {
+                          type: "text",
+                          text:
+                            "วัน " + dayjs(date).format("dddd ที่ D MMMM YYYY"),
+                          weight: "bold",
+                          size: "lg",
+                          margin: "md",
+                          align: "center",
+                        },
+                        {
+                          type: "text",
+                          text: "เวลา " + time,
+                          size: "xl",
+                          wrap: true,
+                          weight: "bold",
+                          align: "center",
+                        },
+                        {
+                          type: "separator",
+                          margin: "xxl",
+                        },
+                        {
+                          type: "text",
+                          text: "บริการ " + service,
+                          size: "lg",
+                          weight: "bold",
+                          align: "center",
+                        },
+                      ],
+                    },
+                    footer: {
+                      type: "box",
+                      layout: "vertical",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "โรงพยาบาลปากพลี นครนายก",
+                          align: "center",
+                          color: "#ffffff",
+                        },
+                      ],
+                      backgroundColor: "#A22CFF",
+                      paddingAll: "sm",
+                    },
+                    styles: {
+                      footer: {
+                        separator: true,
+                      },
+                    },
+                  },
+                },
+              ],
+            });
+            axios
+              .post("https://api.line.me/v2/bot/message/push", data, {
+                headers: {
+                  Authorization: "Bearer " + process.env.KEY_API,
+                  "Content-Type": "application/json",
+                },
+              })
+              .then(function (response) {
+                res.json("done");
+              });
+          }
+        );
+      }
     }
   );
 });
@@ -434,13 +584,58 @@ app.get("/authen", jsonParser, function (req, res, next) {
 
 app.get("/holiday", jsonParser, function (req, res, next) {
   connection.query(
-    "SELECT date_holiday FROM holiday",
+    "SELECT * FROM holiday ORDER BY date_holiday ASC",
     function (err, results, fields) {
       if (err) {
         res.json({ status: "error", message: err });
         return;
       }
       res.json(results);
+    }
+  );
+});
+
+app.put("/edit_holiday/:id", jsonParser, function (req, res, next) {
+  const { id } = req.params;
+  const { date, name } = req.body;
+  const datesub = date.substring(0, 10);
+  connection.query(
+    "UPDATE holiday SET date_holiday = ?, date_holiday_name = ? WHERE date_holiday_id = ?",
+    [datesub, name, id],
+    function (err, results, fields) {
+      if (err) {
+        res.json({ status: "error", message: err });
+        return;
+      }
+      res.send("Data updated successsfully");
+    }
+  );
+});
+
+app.post("/create_holiday", jsonParser, function (req, res, next) {
+  const { date, name } = req.body;
+  const datesub = date.substring(0, 10);
+  connection.query(
+    "INSERT INTO holiday (date_holiday, date_holiday_name) VALUES (?, ?)",
+    [datesub, name],
+    function (err, results, fields) {
+      if (err) {
+        res.json({ status: "error", message: err });
+        return;
+      }
+      res.send("Create data successsfully");
+    }
+  );
+});
+
+app.delete("/del_holiday/:id", jsonParser, (req, res) => {
+  const { id } = req.params;
+  connection.query(
+    "DELETE FROM holiday WHERE date_holiday_id = ?",
+    id,
+    (error) => {
+      if (error) throw error;
+      res.send("Delete Data Successsfully");
     }
   );
 });
