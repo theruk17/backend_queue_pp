@@ -575,7 +575,7 @@ app.post("/databooking", jsonParser, function (req, resp, next) {
           .then((res) => {
             const uid = res.data.userId;
             connection.execute(
-              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time,b.booking_status  
+              `SELECT b.id, b.cid, CONCAT(u.pname,u.fname,' ',u.lname) as fullname, u.related, u.cid, b.booking_service, b.booking_date,b.booking_time,b.booking_status,b.booking_message_cancel  
               FROM booking_list b
               LEFT JOIN users u ON u.cid = b.cid
               WHERE b.uid = ? ORDER BY b.id DESC`,
